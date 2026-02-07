@@ -1,0 +1,11 @@
+# Archivos de sistema y entorno virtual
+venv/
+__pycache__/
+*.pyc
+
+# Archivos con claves secretas (¡CRÍTICO!)
+.streamlit/secrets.toml
+src/keys.py
+
+# Archivos de datos (Opcional: Si quieres subir el CSV déjalo, si son datos privados, agrégalo aquí)
+# incendios.csv
