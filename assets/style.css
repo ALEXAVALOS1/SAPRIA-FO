@@ -1,179 +1,138 @@
-/* --- SAPRIA-FO: SUPREME COMMAND CENTER THEME --- */
+/* --- SAPRIA-FO: FINAL MASTER THEME --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
+/* RESET GENERAL */
 :root {
-    --bg-main: #0B1121;
-    --bg-panel: #151D32;
-    --bg-card-dark: #0F172A;
-    --text-white: #FFFFFF;
-    --text-gray: #9CA3AF;
-    --accent-red: #E11D48;
-    --accent-green: #10B981;
-    --accent-blue: #3B82F6;
-    --accent-orange: #F59E0B;
+    --bg-dark: #0F172A; /* Slate 900 */
+    --bg-card: #1E293B; /* Slate 800 */
+    --accent: #E11D48;  /* Rojo Sapria */
+    --text-main: #F8FAFC;
+    --text-sub: #94A3B8;
 }
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
-    background-color: var(--bg-main) !important;
-    color: var(--text-white);
+    color: var(--text-main);
 }
 
-/* Ocultar elementos nativos de Streamlit */
+.stApp {
+    background-color: var(--bg-dark);
+}
+
+/* OCULTAR COSAS NATIVAS QUE MOLESTAN */
 #MainMenu, footer, header, .stDeployButton { display: none !important; }
-.stApp > header { display: none !important; } /* Ocultar header nativo */
+.block-container { padding-top: 1rem !important; padding-bottom: 5rem !important; }
 
-/* Eliminar padding superior para que el navbar falso toque el techo */
-.block-container { padding-top: 0 !important; }
-
-/* --- FAKE TOP NAVBAR --- */
-.top-navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--bg-panel);
-    padding: 10px 20px;
-    border-bottom: 1px solid #1E293B;
-    margin-bottom: 20px;
-}
-.nav-left { font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px;}
-.nav-right { display: flex; gap: 20px; font-size: 14px; color: var(--text-gray); }
-.nav-item { cursor: pointer; transition: color 0.2s; }
-.nav-item:hover, .nav-item.active { color: var(--text-white); }
-
-/* --- CUSTOM SIDEBAR --- */
+/* --- SIDEBAR ELEGANTE (ARREGLO DEL MENÚ) --- */
 section[data-testid="stSidebar"] {
-    background-color: var(--bg-panel) !important;
-    border-right: 1px solid #1E293B;
+    background-color: #0B1120;
+    border-right: 1px solid rgba(255,255,255,0.05);
 }
-.sidebar-logo { padding: 20px; border-bottom: 1px solid #1E293B; margin-bottom: 20px; }
-.sidebar-title { color: var(--accent-red); font-weight: 800; font-size: 24px; letter-spacing: 1px; margin: 0; }
-.sidebar-subtitle { color: var(--text-gray); font-size: 12px; margin: 0; }
 
-/* Botones del menú lateral personalizados */
-.custom-nav-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 12px 15px;
-    background: transparent;
-    border: none;
-    color: var(--text-gray);
-    font-weight: 500;
-    text-align: left;
-    cursor: pointer;
+/* Transformar los Radio Buttons en un Menú de Navegación */
+.stRadio > div { gap: 10px; }
+
+.stRadio > div > label {
+    background-color: transparent;
+    color: var(--text-sub);
+    padding: 12px 20px;
     border-radius: 8px;
-    transition: all 0.3s;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+    font-weight: 600;
     font-size: 14px;
+    display: flex; 
+    align-items: center;
 }
-.custom-nav-btn i { width: 20px; text-align: center; }
-.custom-nav-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-white); }
-.custom-nav-btn.active { background: linear-gradient(90deg, rgba(225, 29, 72, 0.2), transparent); color: var(--accent-red); border-left: 3px solid var(--accent-red); }
 
-/* --- TARJETAS DEL DASHBOARD --- */
+.stRadio > div > label:hover {
+    background-color: rgba(255,255,255,0.03);
+    color: white;
+}
+
+/* El botón seleccionado */
+.stRadio > div > label[data-checked="true"] {
+    background: linear-gradient(90deg, rgba(225, 29, 72, 0.2) 0%, transparent 100%);
+    border-left: 4px solid var(--accent);
+    color: white;
+}
+
+/* Ocultar el circulito del radio button nativo */
+.stRadio div[role="radio"] { display: none; }
+
+/* --- TARJETAS FLOTANTES (MAPA) --- */
+.floating-map-card {
+    background: rgba(30, 41, 59, 0.95); /* Oscuro translúcido */
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    width: 280px;
+}
+.fmc-header { color: var(--accent); font-weight: 800; font-size: 12px; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+.fmc-val { font-weight: 700; color: white; float: right; }
+.fmc-row { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
+
+/* --- TARJETAS DASHBOARD --- */
 .dash-card {
-    background-color: var(--bg-panel);
+    background-color: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.05);
     border-radius: 12px;
     padding: 20px;
-    height: 100%;
-    border: 1px solid #1E293B;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
-/* Tarjeta de Riesgo Grande */
-.risk-card-large {
-    text-align: center;
-    padding: 30px 20px;
+/* --- PRONÓSTICO (ARREGLO VISUAL - Importante para la imagen 83fa2b) --- */
+.forecast-section {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    border: 1px solid rgba(255,255,255,0.05);
 }
-.risk-title-sm { color: var(--text-gray); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
-.risk-status-large { font-size: 42px; font-weight: 900; color: var(--accent-green); margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 10px;}
-.risk-subtext { color: var(--text-gray); font-size: 14px; }
 
-/* Tarjetas Pequeñas (Temp/Hum) */
-.small-stat-card {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background-color: var(--bg-card-dark);
-    padding: 15px;
-    border-radius: 10px;
-}
-.stat-icon { font-size: 24px; color: var(--text-gray); }
-.stat-value { font-size: 22px; font-weight: 700; }
-.stat-label { font-size: 12px; color: var(--text-gray); text-transform: uppercase; }
-
-/* --- PRONÓSTICO HORIZONTAL --- */
 .forecast-container {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding-bottom: 10px;
+    display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;
 }
+/* Ocultar barra de scroll fea */
+.forecast-container::-webkit-scrollbar { height: 4px; }
+.forecast-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+
 .forecast-item {
-    min-width: 100px;
-    background-color: var(--bg-card-dark);
+    background: #151e2e;
+    min-width: 90px;
     padding: 15px 10px;
     border-radius: 10px;
     text-align: center;
-    border: 1px solid #1E293B;
+    border: 1px solid rgba(255,255,255,0.05);
 }
-.fc-time { font-size: 12px; color: var(--text-gray); margin-bottom: 10px; }
+.fc-time { font-size: 11px; color: var(--text-sub); margin-bottom: 5px; }
 .fc-icon { font-size: 20px; margin-bottom: 5px; }
-.fc-temp { font-weight: 700; font-size: 16px; }
-.fc-rain { font-size: 11px; color: var(--accent-blue); }
-.fc-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; margin-top: 8px; }
-.badge-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
-.badge-yellow { background: rgba(245, 158, 11, 0.2); color: var(--accent-orange); }
+.fc-temp { font-size: 16px; font-weight: bold; margin: 5px 0; color: white; }
+.fc-pop { font-size: 10px; color: #3B82F6; }
+.fc-badge { background: rgba(16, 185, 129, 0.2); color: #10B981; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; display: inline-block; margin-top: 5px;}
 
-/* --- BITÁCORA/LOG --- */
-.log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.live-badge { background: var(--accent-green); color: black; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+/* --- BITÁCORA --- */
 .log-item {
-    background-color: var(--bg-card-dark);
-    padding: 15px;
-    border-radius: 10px;
-    border-left: 4px solid var(--accent-red);
-    margin-bottom: 10px;
-    position: relative;
+    background: #151e2e;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+    margin-bottom: 8px;
 }
-.log-tag { background: rgba(225, 29, 72, 0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-block; margin-bottom: 8px;}
-.log-date { position: absolute; top: 15px; right: 15px; font-size: 11px; color: var(--text-gray); }
-.log-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; }
-.log-loc { font-size: 12px; color: var(--text-gray); display: flex; align-items: center; gap: 5px; }
+.log-title { color: white; font-weight: 600; font-size: 14px; }
+.log-sub { color: var(--text-sub); font-size: 11px; }
 
-/* --- TARJETA FLOTANTE DEL MAPA (Truco CSS) --- */
-/* Esto posiciona la tarjeta blanca sobre el mapa */
-.floating-map-card {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: white;
-    color: #0F172A;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-    z-index: 999; /* Asegura que esté encima del mapa */
-    width: 250px;
-    font-family: 'Inter', sans-serif;
-}
-.fmc-header { display: flex; align-items: center; gap: 8px; color: var(--accent-red); font-weight: 700; font-size: 13px; margin-bottom: 10px;}
-.fmc-body { font-size: 12px; }
-.fmc-row { display: flex; justify-content: space-between; margin-bottom: 5px; color: #475569; }
-.fmc-val { font-weight: 600; color: #0F172A; }
-
-/* --- FOOTER GIGANTE --- */
+/* --- FOOTER --- */
 .mega-footer {
-    background-color: #060A15;
-    padding: 60px 30px;
-    margin-top: 60px;
-    border-top: 1px solid #1E293B;
+    background: #050910;
+    margin-top: 50px;
+    padding: 40px;
+    border-top: 1px solid #334155;
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 12px;
 }
-.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 40px; max-width: 1400px; margin: 0 auto; }
-.footer-col h4 { color: var(--text-gray); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
-.footer-list { list-style: none; padding: 0; margin: 0; }
-.footer-list li { margin-bottom: 12px; font-size: 14px; color: var(--text-gray); display: flex; align-items: center; gap: 10px; }
-.footer-list li i { width: 20px; color: var(--accent-blue); }
-.big-911-container { text-align: center; }
-.big-911 { font-size: 80px; font-weight: 900; line-height: 1; color: var(--text-white); }
-.footer-bottom { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid #1E293B; font-size: 12px; color: #475569; }
