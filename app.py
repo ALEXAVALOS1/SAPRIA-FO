@@ -1,128 +1,166 @@
 import streamlit as st
 from streamlit_folium import st_folium
 import folium
-from folium.plugins import HeatMap, MarkerCluster
+from folium.plugins import HeatMap, AntPath
 import pandas as pd
 from datetime import datetime
 
-# --- 1. IMPORTACIÓN DE MÓDULOS ---
+# --- IMPORTACIONES ---
 try:
-    from src.data_loader import load_historical_data, get_weather_data
-    from src.ai_model import train_fire_model, predict_risk_grid
+    from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_air_quality, get_route_osrm, find_nearest_station
+    from src.components import render_top_navbar, render_risk_card, render_small_stat, render_map_floating_card, render_air_quality_card, render_tactical_card, render_simulation_controls, render_impact_alert
+    from src.report_generator import generate_pdf_report
+    from src.simulation import get_fire_ellipse
+    from src.fwi_calculator import calculate_fwi
+    from src.geometry_utils import analyze_impact
+    # NUEVO MÓDULO
+    from src.analytics import render_3d_map, render_temporal_analysis, render_cause_analysis, render_kpi_metrics
 except ImportError as e:
-    st.error(f"❌ Error: {e}")
+    st.error(f"Error crítico: {e}")
     st.stop()
 
-# --- 2. CONFIGURACIÓN VISUAL ---
-st.set_page_config(page_title="SAPRIA-FO | Monitoreo", page_icon="🔥", layout="wide")
-
+# --- CONFIGURACIÓN ---
+st.set_page_config(page_title="SAPRIA-FO | Intelligence", page_icon="🛡️", layout="wide", initial_sidebar_state="expanded")
+st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">', unsafe_allow_html=True)
 def local_css(file_name):
-    try:
-        with open(file_name) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except FileNotFoundError: pass
-
+    with open(file_name, encoding='utf-8') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 local_css("assets/style.css")
 
-# --- 3. DATOS ---
-df_incendios = load_historical_data("incendios.csv")
-JUAREZ_COORDS = [31.6904, -106.4245]
+# --- VARIABLES ---
+if 'page' not in st.session_state: st.session_state['page'] = 'Dashboard'
+if 'sim_coords' not in st.session_state: st.session_state['sim_coords'] = None
+if 'manual_wind' not in st.session_state: st.session_state['manual_wind'] = 20
 
-# --- 4. SIDEBAR ---
+def set_page(p): st.session_state['page'] = p
+
+# --- DATOS REALES ---
+JUAREZ_LAT, JUAREZ_LON = 31.7389, -106.4856 
+
+@st.cache_data(ttl=600)
+def get_data_bundle():
+    df = load_historical_data("incendios.csv")
+    weather = get_weather_data(JUAREZ_LAT, JUAREZ_LON)
+    aqi = get_air_quality(JUAREZ_LAT, JUAREZ_LON)
+    df_infra = get_real_infrastructure(JUAREZ_LAT, JUAREZ_LON, radius=10000)
+    return df, weather, aqi, df_infra
+
+df, weather, aqi, df_infra = get_data_bundle()
+
+# --- INTERFAZ ---
+render_top_navbar()
+
+# SIDEBAR
 with st.sidebar:
-    st.title("SAPRIA-FO")
+    st.markdown('<div class="sidebar-logo"><h1 class="sidebar-title">SAPRIA-FO</h1><p class="sidebar-subtitle">Strategic Intelligence v8.0</p></div>', unsafe_allow_html=True)
+    
+    # Navegación
+    pages = [("Comando", "fa-map-location-dot", "Dashboard"), ("Inteligencia", "fa-chart-pie", "Reportes")]
+    for label, icon, pid in pages:
+        active = "active" if st.session_state['page'] == pid else ""
+        if st.button(f"⠀{label}", key=pid, use_container_width=True):
+            set_page(pid)
+            st.rerun()
+        st.markdown(f'<div class="custom-nav-btn {active}" style="pointer-events:none; margin-top:-48px; position:relative; z-index:0;"><i class="fa-solid {icon}"></i> {label}</div>', unsafe_allow_html=True)
+    
     st.markdown("---")
-    opcion_menu = st.radio("Menú", ["📡 Monitoreo en Vivo", "🤖 Predicción IA"])
     
-    # Filtros
-    filtro_colonia = "Todas"
-    if not df_incendios.empty:
-        st.markdown("---")
-        colonias = ["Todas"] + sorted(df_incendios['colonia'].dropna().unique().tolist())
-        filtro_colonia = st.selectbox("Filtrar Zona:", colonias)
-
-# --- 5. INTERFAZ PRINCIPAL ---
-c1, c2 = st.columns([3, 1])
-with c1: st.markdown("## SAPRIA-FO: Sistema de Análisis Predictivo")
-with c2: st.markdown(f"**{datetime.now().strftime('%d/%m/%Y %H:%M')}**")
-
-col_map, col_stats = st.columns([3, 1])
-
-with col_map:
-    # --- CONFIGURACIÓN DE MAPA LIMPIO ---
-    m = folium.Map(location=JUAREZ_COORDS, zoom_start=12, tiles=None)
-
-    # Capas Base
-    folium.TileLayer("CartoDB dark_matter", name="Modo Oscuro (Base)", show=True).add_to(m)
-    folium.TileLayer("OpenStreetMap", name="Callejero (Claro)", show=False).add_to(m)
-
-    # Filtrar datos
-    df_view = df_incendios.copy()
-    if filtro_colonia != "Todas" and not df_incendios.empty:
-        df_view = df_view[df_view['colonia'] == filtro_colonia]
-        if not df_view.empty:
-            m.location = [df_view.iloc[0]['lat'], df_view.iloc[0]['lon']]
-            m.zoom_start = 14
-
-    # --- LÓGICA DE CAPAS ---
-    if opcion_menu == "📡 Monitoreo en Vivo" and not df_view.empty:
-        # 1. Mapa de Calor (SOLO SI SE ACTIVA) - AHORA ES NÍTIDO
-        # Ajuste: blur=6 (muy bajo) para quitar efecto neblina
-        heat_data = [[row['lat'], row['lon']] for index, row in df_view.iterrows()]
-        HeatMap(
-            heat_data,
-            radius=10, 
-            blur=6,          # <--- AQUÍ ESTÁ EL TRUCO (Adiós neblina)
-            min_opacity=0.4,
-            gradient={0.4: 'cyan', 0.6: 'lime', 1: 'red'},
-            name="🔥 Mapa de Calor (On/Off)"
-        ).add_to(m)
-
-        # 2. Puntos Exactos (Siempre visibles y limpios)
-        marker_cluster = MarkerCluster(name="📍 Puntos de Incendio").add_to(m)
-        for index, row in df_view.iterrows():
-            folium.Marker(
-                [row['lat'], row['lon']],
-                popup=f"{row['colonia']} - {row['tipo_incidente']}",
-                icon=folium.Icon(color="red", icon="fire", prefix="fa")
-            ).add_to(marker_cluster)
-
-    elif opcion_menu == "🤖 Predicción IA" and not df_incendios.empty:
-        with st.spinner("Calculando riesgos..."):
-            model, acc = train_fire_model(df_incendios)
-            st.success(f"Precisión del Modelo: {acc:.1%}")
-            
-            # Grid de predicción
-            grid = predict_risk_grid(model, df_incendios['lat'].min(), df_incendios['lat'].max(), 
-                                   df_incendios['lon'].min(), df_incendios['lon'].max(), datetime.now())
-            high_risk = grid[grid['risk_prob'] > 0.5]
-            
-            if not high_risk.empty:
-                HeatMap(
-                    [[r['lat'], r['lon'], r['risk_prob']] for i, r in high_risk.iterrows()],
-                    radius=15, blur=10, gradient={0.5: 'orange', 1: 'red'},
-                    name="⚠️ Zonas de Riesgo IA"
-                ).add_to(m)
-
-    # CONTROL DE CAPAS (Para que puedas apagar lo que no te guste)
-    folium.LayerControl(collapsed=False).add_to(m)
-    st_data = st_folium(m, width="100%", height=550)
-
-with col_stats:
-    st.markdown("### 📊 Métricas")
-    weather = get_weather_data(JUAREZ_COORDS[0], JUAREZ_COORDS[1])
-    
-    if weather:
-        st.metric("🌡️ Temperatura", f"{weather['main']['temp']}°C", f"Hum: {weather['main']['humidity']}%")
-    
-    if not df_incendios.empty:
-        st.metric("Total Incidentes", len(df_incendios))
-        st.caption(f"Zona más crítica: {df_incendios['colonia'].mode()[0]}")
+    # Panel Dinámico según página
+    if st.session_state['page'] == 'Dashboard':
+        st.markdown("### 🎮 SIMULADOR")
+        sim_wind_speed = st.slider("Viento (km/h)", 0, 100, 35)
+        sim_wind_deg = st.slider("Dirección (°)", 0, 360, 90)
+        sim_temp = st.slider("Temp (°C)", -5, 50, 38)
+        sim_hum = st.slider("Humedad (%)", 0, 100, 8)
         
-        # Gráfica limpia
-        st.markdown("##### Causas Frecuentes")
-        st.bar_chart(df_incendios['causa'].value_counts().head(5))
+        if st.button("Reiniciar Mapa"):
+            st.session_state['sim_coords'] = None
+            st.rerun()
+    else:
+        st.info("📊 Estás en el módulo de análisis histórico. Aquí puedes identificar patrones a largo plazo.")
 
-# Footer minimalista
-st.markdown("---")
-st.markdown("<div style='text-align: center; color: grey;'>SAPRIA-FO © 2026</div>", unsafe_allow_html=True)
+# --- PÁGINA 1: DASHBOARD DE MANDO (IGUAL QUE ANTES) ---
+if st.session_state['page'] == 'Dashboard':
+    c_map, c_stats = st.columns([2.5, 1])
+    
+    # Cálculos Simulador
+    fire_polygon = None
+    impact_list = []
+    fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind_speed)
+
+    if st.session_state['sim_coords']:
+        sim_lat = st.session_state['sim_coords']['lat']
+        sim_lon = st.session_state['sim_coords']['lng']
+        fire_polygon = get_fire_ellipse(sim_lat, sim_lon, sim_wind_deg, sim_wind_speed)
+        impact_list = analyze_impact(fire_polygon, df_infra)
+    
+    with c_map:
+        total = len(df) if not df.empty else 0
+        hotspot = df['colonia'].mode()[0] if not df.empty else "N/A"
+        st.markdown(render_map_floating_card(total, hotspot), unsafe_allow_html=True)
+        
+        m = folium.Map(location=[JUAREZ_LAT, JUAREZ_LON], zoom_start=12, tiles="CartoDB dark_matter")
+        
+        if not df.empty:
+            HeatMap([[r['lat'], r['lon']] for _, r in df.iterrows()], radius=15, gradient={0.4: '#F59E0B', 1: '#E11D48'}).add_to(m)
+        
+        if not df_infra.empty:
+            for _, r in df_infra.iterrows():
+                icon_name = 'truck-medical' if r['tipo'] == 'Bomberos' else r['icon']
+                folium.Marker([r['lat'], r['lon']], popup=r['nombre'], icon=folium.Icon(color="black", icon_color=r['color'], icon=icon_name, prefix="fa")).add_to(m)
+        
+        if fire_polygon:
+            folium.Polygon(locations=fire_polygon, color=fwi_col, weight=2, fill=True, fill_color=fwi_col, fill_opacity=0.4).add_to(m)
+            folium.Marker([sim_lat, sim_lon], icon=folium.Icon(color="red", icon="fire", prefix="fa", spin=True)).add_to(m)
+            for item in impact_list:
+                folium.Marker([item['lat'], item['lon']], icon=folium.Icon(color="red", icon="triangle-exclamation", prefix="fa", spin=True)).add_to(m)
+
+        map_data = st_folium(m, width="100%", height=550)
+        if map_data['last_clicked']:
+            if st.session_state['sim_coords'] != map_data['last_clicked']:
+                st.session_state['sim_coords'] = map_data['last_clicked']
+                st.rerun()
+
+    with c_stats:
+        if impact_list:
+            st.markdown(render_impact_alert(impact_list), unsafe_allow_html=True)
+            st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+        
+        st.markdown(f"""<div class="dash-card" style="border-left: 4px solid {fwi_col};"><div style="font-size:10px; color:{fwi_col}; font-weight:bold;">SIMULACIÓN ACTIVA</div><div style="font-size:20px; color:white; font-weight:bold;">{fwi_cat} ({fwi_val:.1f})</div></div>""", unsafe_allow_html=True)
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+        
+        c1, c2 = st.columns(2)
+        with c1: st.markdown(render_small_stat("TEMP", f"{weather['main']['temp']}°", "fa-temperature-half", "#F59E0B"), unsafe_allow_html=True)
+        with c2: st.markdown(render_small_stat("HUMEDAD", f"{weather['main']['humidity']}%", "fa-droplet", "#3B82F6"), unsafe_allow_html=True)
+        st.markdown(render_air_quality_card(aqi), unsafe_allow_html=True)
+
+# --- PÁGINA 2: INTELIGENCIA DE DATOS (NUEVA) ---
+elif st.session_state['page'] == 'Reportes':
+    st.markdown("<h2 style='color:#E11D48;'>📡 DIVISIÓN DE INTELIGENCIA ESTRATÉGICA</h2>", unsafe_allow_html=True)
+    
+    # Métricas KPI
+    render_kpi_metrics(df)
+    st.markdown("---")
+    
+    # Fila 1: Mapa 3D y Causas
+    c1, c2 = st.columns([2, 1])
+    with c1:
+        render_3d_map(df) # MAPA 3D CON PYDECK
+    with c2:
+        render_cause_analysis(df) # GRÁFICO SUNBURST
+        
+    st.markdown("---")
+    
+    # Fila 2: Análisis Temporal y Descarga
+    c3, c4 = st.columns([2, 1])
+    with c3:
+        render_temporal_analysis(df) # MAPA DE CALOR TEMPORAL
+    with c4:
+        st.markdown("### 📄 EXPORTACIÓN OFICIAL")
+        st.info("Generar expediente completo con gráficas, mapas y bitácora operativa.")
+        if st.button("Generar Expediente PDF", use_container_width=True):
+            pdf = generate_pdf_report(df, weather, aqi)
+            st.download_button("📥 Descargar Expediente", pdf, "Expediente_Inteligencia.pdf", "application/pdf", use_container_width=True)
+
+# Footer
+st.markdown("""<div class="mega-footer"><div class="footer-bottom">© 2026 SAPRIA-FO • Intelligence Division</div></div>""", unsafe_allow_html=True)

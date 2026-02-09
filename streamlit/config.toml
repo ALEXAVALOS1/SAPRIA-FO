@@ -1,7 +1,11 @@
 [theme]
-base = "dark"
-primaryColor = "#E63946"
-backgroundColor = "#0F172A"
-secondaryBackgroundColor = "#1E293B"
-textColor = "#F1F5F9"
+primaryColor = "#F97316"   # Naranja Fuego (Reemplaza al azul en botones/inputs)
+backgroundColor = "#0F172A" # Fondo Azul Marino Profundo (El de tu imagen)
+secondaryBackgroundColor = "#1E293B" # Fondo de la Barra Lateral y Tarjetas
+textColor = "#F8FAFC"       # Texto Blanco Hielo
 font = "sans serif"
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false

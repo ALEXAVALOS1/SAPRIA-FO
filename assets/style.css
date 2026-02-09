@@ -1,38 +1,179 @@
-/* Ocultar elementos por defecto de Streamlit para limpiar la UI */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
+/* --- SAPRIA-FO: SUPREME COMMAND CENTER THEME --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
-/* Estilo para las tarjetas de métricas (Derecha) */
-div[data-testid="stMetric"] {
-    background-color: #1E293B;
+:root {
+    --bg-main: #0B1121;
+    --bg-panel: #151D32;
+    --bg-card-dark: #0F172A;
+    --text-white: #FFFFFF;
+    --text-gray: #9CA3AF;
+    --accent-red: #E11D48;
+    --accent-green: #10B981;
+    --accent-blue: #3B82F6;
+    --accent-orange: #F59E0B;
+}
+
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main) !important;
+    color: var(--text-white);
+}
+
+/* Ocultar elementos nativos de Streamlit */
+#MainMenu, footer, header, .stDeployButton { display: none !important; }
+.stApp > header { display: none !important; } /* Ocultar header nativo */
+
+/* Eliminar padding superior para que el navbar falso toque el techo */
+.block-container { padding-top: 0 !important; }
+
+/* --- FAKE TOP NAVBAR --- */
+.top-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-panel);
+    padding: 10px 20px;
+    border-bottom: 1px solid #1E293B;
+    margin-bottom: 20px;
+}
+.nav-left { font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px;}
+.nav-right { display: flex; gap: 20px; font-size: 14px; color: var(--text-gray); }
+.nav-item { cursor: pointer; transition: color 0.2s; }
+.nav-item:hover, .nav-item.active { color: var(--text-white); }
+
+/* --- CUSTOM SIDEBAR --- */
+section[data-testid="stSidebar"] {
+    background-color: var(--bg-panel) !important;
+    border-right: 1px solid #1E293B;
+}
+.sidebar-logo { padding: 20px; border-bottom: 1px solid #1E293B; margin-bottom: 20px; }
+.sidebar-title { color: var(--accent-red); font-weight: 800; font-size: 24px; letter-spacing: 1px; margin: 0; }
+.sidebar-subtitle { color: var(--text-gray); font-size: 12px; margin: 0; }
+
+/* Botones del menú lateral personalizados */
+.custom-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 15px;
+    background: transparent;
+    border: none;
+    color: var(--text-gray);
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+.custom-nav-btn i { width: 20px; text-align: center; }
+.custom-nav-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-white); }
+.custom-nav-btn.active { background: linear-gradient(90deg, rgba(225, 29, 72, 0.2), transparent); color: var(--accent-red); border-left: 3px solid var(--accent-red); }
+
+/* --- TARJETAS DEL DASHBOARD --- */
+.dash-card {
+    background-color: var(--bg-panel);
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+    border: 1px solid #1E293B;
+}
+
+/* Tarjeta de Riesgo Grande */
+.risk-card-large {
+    text-align: center;
+    padding: 30px 20px;
+}
+.risk-title-sm { color: var(--text-gray); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+.risk-status-large { font-size: 42px; font-weight: 900; color: var(--accent-green); margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 10px;}
+.risk-subtext { color: var(--text-gray); font-size: 14px; }
+
+/* Tarjetas Pequeñas (Temp/Hum) */
+.small-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: var(--bg-card-dark);
     padding: 15px;
     border-radius: 10px;
-    border-left: 5px solid #E63946;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
+.stat-icon { font-size: 24px; color: var(--text-gray); }
+.stat-value { font-size: 22px; font-weight: 700; }
+.stat-label { font-size: 12px; color: var(--text-gray); text-transform: uppercase; }
 
-/* Estilo personalizado para el Header */
-.header-style {
-    font-size: 24px;
-    font-weight: bold;
-    color: #F8FAFC;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #E63946;
+/* --- PRONÓSTICO HORIZONTAL --- */
+.forecast-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
     padding-bottom: 10px;
 }
-
-/* Estilo para el Footer */
-.footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: #0F172A;
-    color: white;
+.forecast-item {
+    min-width: 100px;
+    background-color: var(--bg-card-dark);
+    padding: 15px 10px;
+    border-radius: 10px;
     text-align: center;
-    padding: 10px;
-    border-top: 1px solid #334155;
-    z-index: 1000;
-    font-size: 12px;
+    border: 1px solid #1E293B;
 }
+.fc-time { font-size: 12px; color: var(--text-gray); margin-bottom: 10px; }
+.fc-icon { font-size: 20px; margin-bottom: 5px; }
+.fc-temp { font-weight: 700; font-size: 16px; }
+.fc-rain { font-size: 11px; color: var(--accent-blue); }
+.fc-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; margin-top: 8px; }
+.badge-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+.badge-yellow { background: rgba(245, 158, 11, 0.2); color: var(--accent-orange); }
+
+/* --- BITÁCORA/LOG --- */
+.log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.live-badge { background: var(--accent-green); color: black; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.log-item {
+    background-color: var(--bg-card-dark);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid var(--accent-red);
+    margin-bottom: 10px;
+    position: relative;
+}
+.log-tag { background: rgba(225, 29, 72, 0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-block; margin-bottom: 8px;}
+.log-date { position: absolute; top: 15px; right: 15px; font-size: 11px; color: var(--text-gray); }
+.log-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; }
+.log-loc { font-size: 12px; color: var(--text-gray); display: flex; align-items: center; gap: 5px; }
+
+/* --- TARJETA FLOTANTE DEL MAPA (Truco CSS) --- */
+/* Esto posiciona la tarjeta blanca sobre el mapa */
+.floating-map-card {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    color: #0F172A;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    z-index: 999; /* Asegura que esté encima del mapa */
+    width: 250px;
+    font-family: 'Inter', sans-serif;
+}
+.fmc-header { display: flex; align-items: center; gap: 8px; color: var(--accent-red); font-weight: 700; font-size: 13px; margin-bottom: 10px;}
+.fmc-body { font-size: 12px; }
+.fmc-row { display: flex; justify-content: space-between; margin-bottom: 5px; color: #475569; }
+.fmc-val { font-weight: 600; color: #0F172A; }
+
+/* --- FOOTER GIGANTE --- */
+.mega-footer {
+    background-color: #060A15;
+    padding: 60px 30px;
+    margin-top: 60px;
+    border-top: 1px solid #1E293B;
+}
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 40px; max-width: 1400px; margin: 0 auto; }
+.footer-col h4 { color: var(--text-gray); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+.footer-list { list-style: none; padding: 0; margin: 0; }
+.footer-list li { margin-bottom: 12px; font-size: 14px; color: var(--text-gray); display: flex; align-items: center; gap: 10px; }
+.footer-list li i { width: 20px; color: var(--accent-blue); }
+.big-911-container { text-align: center; }
+.big-911 { font-size: 80px; font-weight: 900; line-height: 1; color: var(--text-white); }
+.footer-bottom { text-align: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid #1E293B; font-size: 12px; color: #475569; }
