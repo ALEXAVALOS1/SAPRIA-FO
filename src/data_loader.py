@@ -234,3 +234,35 @@ def get_nasa_firms_data():
     except Exception as e:
         print(f"Error NASA: {e}")
         return pd.DataFrame()
+
+        # --- AGREGAR AL FINAL DE src/data_loader.py ---
+import requests
+import math
+
+def find_nearest_station(lat, lon, df_infra):
+    """Encuentra la estación de bomberos más cercana a las coordenadas dadas."""
+    bomberos = df_infra[df_infra['tipo'] == 'Bomberos'].copy()
+    if bomberos.empty: return None
+    
+    # Cálculo de distancia básica (Pitágoras)
+    bomberos['dist'] = ((bomberos['lat'] - lat)**2 + (bomberos['lon'] - lon)**2)**0.5
+    nearest = bomberos.loc[bomberos['dist'].idxmin()]
+    return nearest
+
+def get_route_osrm(start_lat, start_lon, end_lat, end_lon):
+    """Consulta al servidor OSRM para obtener la ruta por calles."""
+    # OSRM pide primero Longitud y luego Latitud
+    url = f"http://router.project-osrm.org/route/v1/driving/{start_lon},{start_lat};{end_lon},{end_lat}?overview=full&geometries=geojson"
+    try:
+        res = requests.get(url).json()
+        if res.get('code') == 'Ok':
+            route = res['routes'][0]
+            geometry = route['geometry']['coordinates']
+            # Convertir [lon, lat] a [lat, lon] para Folium
+            path = [[p[1], p[0]] for p in geometry]
+            distance = round(route['distance'] / 1000, 2) # kilómetros
+            duration = round(route['duration'] / 60) # minutos
+            return {"path": path, "distance": distance, "duration": duration}
+    except Exception as e:
+        print(f"Error en ruteo: {e}")
+    return None

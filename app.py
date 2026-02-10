@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_folium import st_folium
 import folium
-from folium.plugins import HeatMap
+from folium.plugins import HeatMap, AntPath
 import pandas as pd
 from datetime import datetime
 
@@ -17,8 +17,8 @@ local_css("assets/style.css")
 
 # --- IMPORTS LOCALES ---
 try:
-    from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_air_quality, get_nasa_firms_data
-    from src.components import render_top_navbar, render_risk_card, render_small_stat, render_map_floating_card, render_air_quality_card, render_forecast_section, render_nasa_card
+    from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_air_quality, get_nasa_firms_data, find_nearest_station, get_route_osrm
+    from src.components import render_top_navbar, render_risk_card, render_small_stat, render_map_floating_card, render_air_quality_card, render_forecast_section, render_nasa_card, render_tactical_card
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters, generate_ai_briefing
     from src.analytics import render_3d_density_map, render_statistics
@@ -29,6 +29,7 @@ except ImportError as e:
 
 # --- VARIABLES GLOBALES ---
 if 'page' not in st.session_state: st.session_state['page'] = 'Monitor'
+if 'sim_coords' not in st.session_state: st.session_state['sim_coords'] = None
 JUAREZ_LAT, JUAREZ_LON = 31.7389, -106.4856 
 
 # --- DATOS ---
@@ -49,9 +50,9 @@ sim_temp = weather['main']['temp'] if weather else 30
 sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind_speed)
 
-# --- SIDEBAR ---
+# --- SIDEBAR & NAVEGACIÓN ---
 with st.sidebar:
-    st.markdown("<h1 style='color:#E11D48; font-size:24px; margin:0;'>SAPRIA-FO</h1><p style='color:#10B981; font-weight:bold; font-size:11px;'>🌐 Global Intel v7.0</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:#E11D48; font-size:24px; margin:0;'>SAPRIA-FO</h1><p style='color:#10B981; font-weight:bold; font-size:11px;'>🌐 Global Intel v8.0</p>", unsafe_allow_html=True)
     opcion = st.radio("Menú", ["🗺️ Monitor", "🔥 Incidentes", "📄 Reportes"], label_visibility="collapsed")
     if "Monitor" in opcion: st.session_state['page'] = 'Monitor'
     elif "Incidentes" in opcion: st.session_state['page'] = 'Incidentes'
@@ -66,15 +67,23 @@ with st.sidebar:
 
 render_top_navbar()
 
-# --- PANTALLAS ---
+# ==========================================
+# PANTALLA 1: MONITOR (DASHBOARD TÁCTICO)
+# ==========================================
 if st.session_state['page'] == 'Monitor':
     col_main, col_sidebar = st.columns([3, 1])
+
+    route_data = None
+    nearest_station = None
+
     with col_main:
         num_anomalias = len(df_nasa) if not df_nasa.empty else 0
         st.markdown(generate_ai_briefing(weather, fwi_cat, num_anomalias, epicentros_ia), unsafe_allow_html=True)
         total = len(df) if not df.empty else 0
         st.markdown(render_map_floating_card(total, "Riberas del Bravo"), unsafe_allow_html=True)
+        
         m = folium.Map(location=[JUAREZ_LAT, JUAREZ_LON], zoom_start=11, tiles="CartoDB dark_matter")
+        
         if not df.empty: HeatMap([[r['lat'], r['lon']] for _, r in df.iterrows()], radius=15, gradient={0.4:'#F59E0B', 1:'#E11D48'}).add_to(m)
         if not df_infra.empty:
             for _, r in df_infra.iterrows():
@@ -84,14 +93,41 @@ if st.session_state['page'] == 'Monitor':
             for _, r in df_nasa.iterrows():
                 folium.CircleMarker(location=[r['latitude'], r['longitude']], radius=10, color="#EF4444", fill=True, fill_color="#EF4444", fill_opacity=0.7).add_to(m)
                 folium.Marker([r['latitude'], r['longitude']], icon=folium.Icon(color="red", icon="satellite-dish", prefix="fa")).add_to(m)
-        for ep in epicentros_ia:
-            color_zona = "#E11D48" if ep['peligro'] == "CRÍTICO" else "#F59E0B"
-            folium.Circle(location=[ep['lat'], ep['lon']], radius=1500, color=color_zona, weight=1, fill=True, fill_opacity=0.1).add_to(m)
-            folium.Marker([ep['lat'], ep['lon']], icon=folium.Icon(color="purple" if ep['peligro']=="CRÍTICO" else "orange", icon="brain", prefix="fa")).add_to(m)
-        st_folium(m, width="100%", height=480)
+        
+        # --- NUEVA LÓGICA DE RUTEO AL HACER CLIC ---
+        if st.session_state['sim_coords']:
+            sim_lat = st.session_state['sim_coords']['lat']
+            sim_lon = st.session_state['sim_coords']['lng']
+            
+            # Dibujar el incendio
+            folium.Marker([sim_lat, sim_lon], icon=folium.Icon(color="red", icon="fire", prefix="fa")).add_to(m)
+            
+            # Buscar estación y ruta
+            nearest_station = find_nearest_station(sim_lat, sim_lon, df_infra)
+            if nearest_station is not None:
+                route_data = get_route_osrm(nearest_station['lat'], nearest_station['lon'], sim_lat, sim_lon)
+                if route_data:
+                    # Dibujar la ruta animada (AntPath)
+                    AntPath(
+                        locations=route_data['path'], 
+                        color="#3B82F6", weight=5, opacity=0.8, delay=800, 
+                        dash_array=[10, 20]
+                    ).add_to(m)
+
+        map_data = st_folium(m, width="100%", height=480)
+        
+        # Detectar el clic
+        if map_data['last_clicked'] and st.session_state['sim_coords'] != map_data['last_clicked']:
+            st.session_state['sim_coords'] = map_data['last_clicked']
+            st.rerun()
+            
         st.markdown(render_forecast_section(), unsafe_allow_html=True)
 
     with col_sidebar:
+        # --- TARJETA LOGÍSTICA (Aparece al hacer clic) ---
+        if route_data and nearest_station is not None:
+            st.markdown(render_tactical_card(route_data, nearest_station['nombre']), unsafe_allow_html=True)
+            
         st.markdown(render_nasa_card(df_nasa), unsafe_allow_html=True)
         st.markdown(render_risk_card(fwi_cat, "Basado en clima real"), unsafe_allow_html=True)
         c1, c2 = st.columns(2)
@@ -99,15 +135,13 @@ if st.session_state['page'] == 'Monitor':
         with c2: st.markdown(render_small_stat("HUM", f"{sim_hum}%", "fa-droplet", "#3B82F6", "rgba(59,130,246,0.1)"), unsafe_allow_html=True)
         st.markdown(render_air_quality_card(aqi), unsafe_allow_html=True)
 
-# --- PANTALLA REPORTES (AQUÍ ESTÁ EL BOTÓN PDF) ---
+# ==========================================
+# PANTALLA 2 Y 3: REPORTES E INCIDENTES
+# ==========================================
 elif st.session_state['page'] == 'Reportes':
     st.markdown("<h2 style='color:#E11D48;'>División de Inteligencia Estratégica</h2>", unsafe_allow_html=True)
     st.markdown("<p style='color:#94A3B8;'>Panel de análisis avanzado.</p><hr style='border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-    
-    # SECCIÓN GENERADOR DE PDF
     st.markdown("<h3 style='color:#F8FAFC;'><i class='fa-solid fa-file-pdf' style='color:#E11D48;'></i> Generador de Informes Tácticos</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#94A3B8; font-size:13px;'>Compila información en tiempo real, IA y NASA en un documento oficial.</p>", unsafe_allow_html=True)
-    
     if st.button("📄 GENERAR INFORME OFICIAL (PDF)", type="primary"):
         with st.spinner("Compilando datos..."):
             try:
@@ -118,19 +152,13 @@ elif st.session_state['page'] == 'Reportes':
                 st.success("¡Informe generado!")
             except Exception as e:
                 st.error(f"Error PDF: {e}")
-
     st.markdown("<hr style='border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-    
-    # MAPA 3D Y GRÁFICOS
     render_3d_density_map(df)
     render_statistics(df)
 
-# --- PANTALLA INCIDENTES ---
 elif st.session_state['page'] == 'Incidentes':
     st.markdown("<h2 style='color:#F59E0B;'>Base de Datos Operativa</h2>", unsafe_allow_html=True)
     if not df.empty:
         st.dataframe(df[['fecha', 'colonia', 'tipo_incidente', 'causa', 'dano']], use_container_width=True, height=500)
-    else:
-        st.info("Sin datos.")
 
 st.markdown('<div class="mega-footer">© 2026 SAPRIA-FO • Global Intelligence Multi-Screen System 🌐</div>', unsafe_allow_html=True)
