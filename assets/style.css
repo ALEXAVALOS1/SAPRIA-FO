@@ -1,139 +1,102 @@
-/* --- SAPRIA-FO: FINAL MASTER THEME --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* --- SAPRIA-FO: LIGHT/NAVY CORPORATE THEME --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-/* RESET GENERAL */
 :root {
-    --bg-dark: #0F172A; /* Slate 900 */
-    --bg-card: #1E293B; /* Slate 800 */
-    --accent: #E11D48;  /* Rojo Sapria */
-    --text-main: #F8FAFC;
-    --text-sub: #94A3B8;
+    --bg-main: #F4F6F8;      /* Fondo Claro Principal */
+    --bg-navy: #0F172A;      /* Azul Marino Oscuro (Sidebar/Navbar/Footer) */
+    --bg-card-dark: #1E293B; /* Tarjetas del panel derecho */
+    --bg-card-light: #FFFFFF;/* Tarjetas blancas (Pronóstico, Mapa) */
+    
+    --accent-red: #E11D48;
+    --accent-yellow: #FACC15;
+    --accent-green: #10B981;
+    --accent-blue: #3B82F6;
+    
+    --text-dark: #0F172A;
+    --text-light: #F8FAFC;
+    --text-muted: #64748B;
 }
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
-    color: var(--text-main);
-    background-color: var(--bg-dark);
+    background-color: var(--bg-main) !important;
+    color: var(--text-dark);
 }
 
-.stApp {
-    background-color: var(--bg-dark);
-}
-
-/* OCULTAR COSAS NATIVAS */
+/* Ocultar UI nativa */
 #MainMenu, footer, header, .stDeployButton { display: none !important; }
-.block-container { padding-top: 1rem !important; padding-bottom: 5rem !important; }
+.block-container { padding-top: 0 !important; max-width: 100% !important; }
 
-/* --- SIDEBAR ELEGANTE (ARREGLO DEL MENÚ) --- */
+/* --- NAVBAR SUPERIOR --- */
+.top-navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    background-color: var(--bg-navy);
+    padding: 12px 25px; color: var(--text-light);
+    border-bottom: 2px solid var(--accent-yellow);
+    margin-bottom: 15px;
+}
+.nav-brand { font-weight: 800; font-size: 16px; display:flex; gap:10px; align-items:center;}
+.nav-brand .yellow-text { color: var(--accent-yellow); }
+.nav-links { display: flex; gap: 20px; font-size: 13px; font-weight: 500; }
+
+/* --- SIDEBAR --- */
 section[data-testid="stSidebar"] {
-    background-color: #0B1120;
-    border-right: 1px solid rgba(255,255,255,0.05);
+    background-color: var(--bg-navy) !important;
+    border-right: none;
+}
+.stSidebar [data-testid="stMarkdownContainer"] p, 
+.stSidebar [data-testid="stMarkdownContainer"] h1 {
+    color: var(--text-light) !important;
 }
 
-/* Transformar los Radio Buttons en un Menú de Navegación */
+/* Radio Buttons del Menú */
 .stRadio > div { gap: 10px; }
-
 .stRadio > div > label {
-    background-color: transparent;
-    color: var(--text-sub);
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    display: flex; 
-    align-items: center;
+    background-color: transparent; color: var(--text-muted);
+    padding: 12px 20px; border-radius: 8px; cursor: pointer;
+    font-weight: 600; font-size: 14px; display: flex; align-items: center;
+    transition: 0.3s;
 }
-
-.stRadio > div > label:hover {
-    background-color: rgba(255,255,255,0.03);
-    color: white;
-}
-
-/* El botón seleccionado */
+.stRadio > div > label:hover { color: var(--text-light); }
 .stRadio > div > label[data-checked="true"] {
-    background: linear-gradient(90deg, rgba(225, 29, 72, 0.2) 0%, transparent 100%);
-    border-left: 4px solid var(--accent);
-    color: white;
+    background: rgba(255,255,255,0.05); color: white;
+    border-left: 4px solid var(--accent-red);
 }
-
-/* Ocultar el circulito del radio button nativo */
 .stRadio div[role="radio"] { display: none; }
 
-/* --- TARJETAS FLOTANTES (MAPA) --- */
+/* --- TARJETAS CLARAS (MAPA Y PRONÓSTICO) --- */
 .floating-map-card {
-    background: rgba(30, 41, 59, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: white;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-    width: 280px;
+    background: var(--bg-card-light);
+    color: var(--text-dark); padding: 15px; border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 260px;
+    border: 1px solid rgba(0,0,0,0.05);
 }
-.fmc-header { color: var(--accent); font-weight: 800; font-size: 12px; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
-.fmc-val { font-weight: 700; color: white; float: right; }
-.fmc-row { font-size: 13px; color: var(--text-sub); margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
+.fmc-header { color: var(--accent-red); font-weight: 800; font-size: 12px; margin-bottom: 10px; }
+.fmc-row { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; display:flex; justify-content:space-between; }
+.fmc-val { font-weight: 700; color: var(--text-dark); }
 
-/* --- TARJETAS DASHBOARD --- */
-.dash-card {
-    background-color: var(--bg-card);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-/* --- PRONÓSTICO (ARREGLO VISUAL) --- */
 .forecast-section {
-    background-color: var(--bg-card);
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 15px;
-    border: 1px solid rgba(255,255,255,0.05);
+    background: var(--bg-card-light); border-radius: 15px; padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-top: 15px; border: 1px solid rgba(0,0,0,0.05);
 }
+.forecast-container { display: flex; justify-content: space-between; text-align: center; }
+.forecast-item { padding: 10px; }
+.fc-time { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+.fc-icon { font-size: 22px; margin: 10px 0; }
+.fc-temp { font-size: 18px; font-weight: 800; color: var(--text-dark); }
+.fc-badge { background: #E2E8F0; color: #475569; padding: 3px 8px; border-radius: 12px; font-size: 9px; font-weight: 800; }
 
-.forecast-container {
-    display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;
+/* --- TARJETAS OSCURAS (PANEL DERECHO) --- */
+.dark-card {
+    background: var(--bg-card-dark); color: var(--text-light);
+    border-radius: 16px; padding: 20px; margin-bottom: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
-/* Ocultar barra de scroll */
-.forecast-container::-webkit-scrollbar { height: 4px; }
-.forecast-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+.dc-title { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 10px;}
+.dc-value { font-size: 32px; font-weight: 900; }
 
-.forecast-item {
-    background: #151e2e;
-    min-width: 90px;
-    padding: 15px 10px;
-    border-radius: 10px;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-.fc-time { font-size: 11px; color: var(--text-sub); margin-bottom: 5px; }
-.fc-icon { font-size: 20px; margin-bottom: 5px; }
-.fc-temp { font-size: 16px; font-weight: bold; margin: 5px 0; color: white; }
-.fc-pop { font-size: 10px; color: #3B82F6; }
-.fc-badge { background: rgba(16, 185, 129, 0.2); color: #10B981; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; display: inline-block; margin-top: 5px;}
-
-/* --- BITÁCORA --- */
-.log-item {
-    background: #151e2e;
-    padding: 12px;
-    border-radius: 8px;
-    border-left: 3px solid var(--accent);
-    margin-bottom: 8px;
-}
-.log-title { color: white; font-weight: 600; font-size: 14px; }
-.log-sub { color: var(--text-sub); font-size: 11px; }
-
-/* --- FOOTER --- */
+/* --- FOOTER NAVY --- */
 .mega-footer {
-    background: #050910;
-    margin-top: 50px;
-    padding: 40px;
-    border-top: 1px solid #334155;
-    text-align: center;
-    color: var(--text-sub);
-    font-size: 12px;
+    background: var(--bg-navy); margin-top: 40px; padding: 40px;
+    color: var(--text-muted); font-size: 13px; border-top: 4px solid var(--accent-yellow);
 }
