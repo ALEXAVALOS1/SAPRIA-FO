@@ -53,9 +53,11 @@ def generate_ai_briefing(weather, fwi_cat, anomalias_nasa, epicentros):
     """
     
     if anomalias_nasa > 0:
-        html += f"> <span style="color:#EF4444; font-weight:bold;">¡ALERTA!</span> SATÉLITE VIIRS DETECTA {anomalias_nasa} ANOMALÍAS EN SECTOR.<br>"
+        # ARREGLADO: Usando comillas simples ' ' para envolver el string de Python
+        html += f'> <span style="color:#EF4444; font-weight:bold;">¡ALERTA!</span> SATÉLITE VIIRS DETECTA {anomalias_nasa} ANOMALÍAS EN SECTOR.<br>'
     else:
-        html += "> ESCANEO SATELITAL: Limpio. Sin firmas de calor activas.<br>"
+        # ARREGLADO: Usando comillas simples aquí también por consistencia
+        html += '> ESCANEO SATELITAL: Limpio. Sin firmas de calor activas.<br>'
         
     if epicentros:
         html += f"> PREDICCIÓN IA: El epicentro Alfa (Zona de mayor riesgo) concentra {epicentros[0]['weight']} incidentes previos. Mantener vigilancia."
