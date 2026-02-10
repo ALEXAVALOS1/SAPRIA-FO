@@ -1,105 +1,135 @@
 import streamlit as st
 
-def render_top_navbar():
+def inject_tailwind():
+    """Inyecta la librería Tailwind CSS vía CDN para renderizar tu diseño."""
+    st.markdown('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">', unsafe_allow_html=True)
+
+def render_header():
     st.markdown("""
-    <div class="top-brand-bar">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <i class="fa-solid fa-shield-halved" style="color:#E11D48; font-size: 18px;"></i>
-            <span>SAPRIA-FO Monitor Municipal Juárez</span>
+    <header class="bg-primary text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <span class="material-icons-outlined text-secondary text-3xl">local_fire_department</span>
+                <div class="border-l border-white/20 h-8 mx-2"></div>
+                <div class="leading-tight">
+                    <h1 class="font-bold text-xl text-secondary" style="margin:0;">SINAPRIA-FO</h1>
+                    <p class="text-[10px] text-white/80 tracking-widest uppercase font-semibold" style="margin:0; font-size:10px;">MONITOREO MUNICIPAL JUÁREZ</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
+                <a class="hover:text-secondary transition-colors" style="color:white; text-decoration:none;" href="#">Quiénes somos</a>
+                <a class="hover:text-secondary transition-colors" style="color:white; text-decoration:none;" href="#">Acciones Preventivas</a>
+            </nav>
         </div>
-        <div class="nav-links">
-            <span>Dashboard</span> <span>Reportes</span> <span>Alertas</span> <span>Prevención</span> <span>Ayuda</span>
+    </header>
+    <div class="bg-primary shadow-lg border-t border-white/5" style="border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-12">
+                <div class="flex items-center space-x-6 text-white/90 text-sm font-semibold">
+                    <span class="text-secondary border-b-2 border-secondary pb-3 pt-3">Dashboard Principal</span>
+                    <span class="hover:text-secondary pb-3 pt-3 transition-colors cursor-pointer">Reportes Históricos</span>
+                    <span class="hover:text-secondary pb-3 pt-3 transition-colors cursor-pointer">Alertas Activas</span>
+                </div>
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-def render_map_floating_card(focos_activos, zona_critica):
-    return f"""
-    <div style="position: relative; height: 0; z-index: 1000;">
-        <div class="floating-map-card">
-            <div class="fmc-header"><i class="fa-solid fa-location-crosshairs"></i> ESTATUS TÁCTICO</div>
-            <div class="fmc-row"><span>Focos Históricos:</span> <span class="fmc-val" style="color:#E11D48;">{focos_activos}</span></div>
-            <div class="fmc-row"><span>Zona Caliente:</span> <span class="fmc-val">{str(zona_critica)[:15]}...</span></div>
-            <div class="fmc-row"><span>Unidades:</span> <span class="fmc-val">3 Desplegadas</span></div>
+def render_left_alert_card(nasa_anomalies):
+    if nasa_anomalies > 0:
+        st.markdown(f"""
+        <div class="bg-card-light rounded-xl p-4 shadow-sm border-l-4 border-alert-red mb-4">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-alert-red text-sm uppercase" style="margin:0;">Alerta Crítica Satelital</h3>
+                <span class="animate-pulse h-2 w-2 rounded-full bg-alert-red"></span>
+            </div>
+            <p class="text-xs text-gray-600 mb-2 font-medium">NASA VIIRS detectó {nasa_anomalies} anomalías térmicas recientes.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+def render_factors_card(weather, fwi_cat):
+    temp = weather['main']['temp'] if weather else "--"
+    hum = weather['main']['humidity'] if weather else "--"
+    st.markdown(f"""
+    <div class="bg-card-light rounded-xl shadow-sm p-4 border border-gray-100 mb-4">
+        <div class="flex flex-col mb-4">
+            <h2 class="font-bold text-gray-800 flex items-center gap-2 text-xs uppercase tracking-wider m-0">
+                <span class="material-icons-outlined text-primary text-sm">analytics</span> Factores Climáticos
+            </h2>
+        </div>
+        <div class="space-y-3">
+            <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                <span class="material-icons-outlined text-gray-500 bg-white p-1.5 rounded-md shadow-sm">device_thermostat</span>
+                <div class="flex flex-col"><span class="text-xs font-bold text-gray-700">Temperatura</span><span class="text-[10px] text-gray-500">{temp}°C</span></div>
+            </div>
+            <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                <span class="material-icons-outlined text-gray-500 bg-white p-1.5 rounded-md shadow-sm">water_drop</span>
+                <div class="flex flex-col"><span class="text-xs font-bold text-gray-700">Humedad</span><span class="text-[10px] text-gray-500">{hum}%</span></div>
+            </div>
+            <div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border-l-2 border-primary">
+                <span class="material-icons-outlined text-gray-500 bg-white p-1.5 rounded-md shadow-sm">speed</span>
+                <div class="flex flex-col"><span class="text-xs font-bold text-gray-700">Riesgo FWI</span><span class="text-[10px] font-bold text-alert-red">{fwi_cat}</span></div>
+            </div>
         </div>
     </div>
-    """
+    """, unsafe_allow_html=True)
 
-def render_risk_card(nivel, descripcion):
-    colors = {"BAJO": "#10B981", "MODERADO": "#3B82F6", "ALTO": "#F59E0B", "MUY ALTO": "#F97316", "EXTREMO": "#E11D48"}
-    color = colors.get(nivel, "#9CA3AF")
-    return f"""
-    <div class="dark-card" style="border-top: 4px solid {color};">
-        <div class="dc-title"><i class="fa-solid fa-circle-info"></i> NIVEL DE RIESGO (FWI)</div>
-        <div class="dc-value" style="color:{color};">{nivel}</div>
-        <div style="font-size:11px; color:#94A3B8; margin-top:5px;">{descripcion}</div>
-    </div>
-    """
-
-def render_small_stat(titulo, valor, icono, color):
-    return f"""
-    <div class="dark-card" style="padding:15px; display:flex; align-items:center; gap:15px;">
-        <div style="background:rgba(255,255,255,0.05); width:40px; height:40px; display:flex; justify-content:center; align-items:center; border-radius:8px; color:{color}; font-size:18px;">
-            <i class="fa-solid {icono}"></i>
-        </div>
-        <div>
-            <div class="dc-title" style="margin-bottom:0;">{titulo}</div>
-            <div class="dc-value" style="font-size:20px;">{valor}</div>
+def render_right_metrics(total_incendios):
+    st.markdown(f"""
+    <div class="bg-card-light rounded-xl p-5 shadow-sm border border-gray-100 mb-4">
+        <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Métricas: Juárez</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                <div class="text-3xl font-bold text-alert-red">{total_incendios}</div>
+                <div class="text-[10px] font-bold text-gray-600 mt-1 uppercase">Total Focos</div>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100">
+                <div class="text-3xl font-bold text-yellow-700">84%</div>
+                <div class="text-[10px] font-bold text-gray-600 mt-1 uppercase">Vulnerabilidad</div>
+            </div>
         </div>
     </div>
-    """
+    """, unsafe_allow_html=True)
 
-def render_nasa_card(df_nasa):
-    anomalias = len(df_nasa) if not df_nasa.empty else 0
-    color = "#EF4444" if anomalias > 0 else "#10B981"
-    status = "¡ANOMALÍA TÉRMICA!" if anomalias > 0 else "Sin alertas satelitales"
-    pulse = "animation: pulse-red 2s infinite;" if anomalias > 0 else ""
-    return f"""
-    <div class="dark-card" style="border-left: 4px solid #3B82F6; {pulse}">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div class="dc-title" style="color:#3B82F6; margin:0;"><i class="fa-solid fa-satellite fa-fade"></i> ENLACE SATELITAL NASA</div>
-            <div style="font-size:9px; background:rgba(59,130,246,0.2); color:#3B82F6; padding:2px 6px; border-radius:4px;">LIVE 24H</div>
+def render_log_card(epicentros_ia):
+    html = """
+    <div class="bg-card-light rounded-xl shadow-sm border border-gray-100 flex-grow flex flex-col overflow-hidden mb-4">
+        <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+            <h2 class="text-xs font-bold text-gray-800 uppercase tracking-wider m-0">Zonas K-Means (IA)</h2>
         </div>
-        <div style="display:flex; align-items:center; gap:15px; margin-top:10px;">
-            <div style="font-size:32px; font-weight:900; color:{color};">{anomalias}</div>
-            <div style="font-size:11px; color:#94A3B8;"><b style="color:{color};">{status}</b><br>Escaneo Infrarrojo VIIRS.</div>
-        </div>
-    </div>
+        <div class="p-4 space-y-3">
     """
+    if epicentros_ia:
+        for ep in epicentros_ia[:3]:
+            badge_color = "bg-alert-red" if ep['peligro'] == "CRÍTICO" else "bg-secondary"
+            html += f"""
+            <div class="p-3 rounded-lg border border-gray-100 bg-white">
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="text-xs font-bold text-gray-800 m-0">Epicentro {ep['id']}</h4>
+                    <span class="text-[9px] {badge_color} text-white px-2 py-0.5 rounded font-black shadow-sm">{ep['peligro']}</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1 m-0">Concentración estadística: {ep['weight']} eventos históricos.</p>
+            </div>
+            """
+    html += "</div></div>"
+    st.markdown(html, unsafe_allow_html=True)
 
-def render_tactical_card(route_data, station_name):
-    if not route_data: return ""
-    return f"""
-    <div class="dark-card" style="border: 1px solid #3B82F6; background: rgba(59, 130, 246, 0.05);">
-        <div class="dc-title" style="color:#3B82F6;"><i class="fa-solid fa-route"></i> LOGÍSTICA DE RESPUESTA</div>
-        <div class="dc-value" style="color:#10B981;">{route_data['duration']} min</div>
-        <div style="font-size:11px; color:#94A3B8;">Unidad asignada: {station_name}</div>
-    </div>
-    """
-
-def render_forecast_section():
-    items = [
-        ("06:00 p.m.", "fa-cloud-sun", "19°", "#10B981"), ("09:00 p.m.", "fa-cloud-moon", "14°", "#10B981"),
-        ("12:00 a.m.", "fa-moon", "9°", "#10B981"), ("03:00 a.m.", "fa-moon", "9°", "#10B981"),
-        ("06:00 a.m.", "fa-cloud-sun", "9°", "#F59E0B"), ("09:00 a.m.", "fa-sun", "14°", "#10B981")
-    ]
-    html = '<div class="forecast-section"><div style="font-size:10px; color:#94A3B8; font-weight:700; margin-bottom:15px; text-transform:uppercase;">Pronóstico de Riesgo (Próximas 12 horas)</div><div class="forecast-container">'
-    for time, icon, temp, col in items:
-        html += f'<div class="forecast-item"><div class="fc-time">{time}</div><i class="fa-solid {icon} fc-icon" style="color:{col};"></i><div class="fc-temp">{temp}</div><span class="fc-badge">BAJO</span></div>'
-    html += '</div></div>'
-    return html
-
-def render_air_quality_card(aqi_data):
-    if not aqi_data: return ""
-    return f"""
-    <div class="dark-card">
-        <div class="dc-title">CALIDAD DEL AIRE (AQI)</div>
-        <div style="display:flex; justify-content:space-between; align-items:end;">
-            <div style="font-size:24px; font-weight:900; color:{aqi_data['color']};">{aqi_data['texto']}</div>
-            <div style="font-size:10px; color:#94A3B8;">PM2.5: {aqi_data['pm2_5']}</div>
+def render_footer():
+    st.markdown("""
+    <footer class="bg-primary text-white pt-10 pb-4 mt-8">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm mb-10">
+            <div>
+                <h2 class="text-2xl font-bold tracking-tighter text-secondary m-0">SINAPRIA-FO</h2>
+                <p class="text-xs opacity-70 mt-1 max-w-[200px] font-medium">Sistema Municipal de Alertamiento Temprano para la Prevención de Incendios en Juárez.</p>
+            </div>
+            <div>
+                <h5 class="font-bold mb-4 text-secondary uppercase tracking-widest text-xs">Emergencias 24/7</h5>
+                <p class="text-4xl font-black text-white tracking-tighter m-0">911</p>
+                <p class="text-[10px] opacity-70 font-bold leading-normal uppercase tracking-widest mt-2">Centro de Monitoreo SINAPRIA-FO. Ciudad Juárez, Chih.</p>
+            </div>
         </div>
-        <div style="height:4px; background:#334155; border-radius:2px; margin-top:10px;">
-            <div style="width:{min(aqi_data['aqi']*20, 100)}%; height:100%; background:{aqi_data['color']}; border-radius:2px;"></div>
+        <div class="container mx-auto px-4 pt-4 border-t border-white/10 text-center">
+            <p class="text-[10px] opacity-50 font-bold tracking-widest uppercase m-0">© 2026 SINAPRIA-FO - Juárez Municipio</p>
         </div>
-    </div>
-    """
+    </footer>
+    """, unsafe_allow_html=True)

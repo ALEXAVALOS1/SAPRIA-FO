@@ -1,94 +1,31 @@
-/* --- SAPRIA-FO: DARK COMMAND THEME (ORIGINAL) --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* --- INYECCIÓN DE TAILWIND Y FUENTES --- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
-:root {
-    --bg-main: #0B1121;      /* Fondo ultra oscuro */
-    --bg-navy: #0F172A;      /* Azul marino oscuro (Sidebar/Navbar) */
-    --bg-card: #1E293B;      /* Tarjetas */
-    --accent-red: #E11D48;
-    --accent-yellow: #F59E0B;
-    --accent-blue: #3B82F6;
-    --text-light: #F8FAFC;
-    --text-muted: #94A3B8;
+/* Ocultar interfaz nativa de Streamlit */
+#MainMenu, header, footer, .stDeployButton { display: none !important; }
+section[data-testid="stSidebar"] { display: none !important; } /* APAGAMOS EL SIDEBAR NATIVO */
+
+/* Resetear el contenedor principal para que use toda la pantalla */
+.block-container { 
+    max-width: 100% !important; 
+    padding: 0 !important; 
+    margin: 0 !important; 
+    font-family: 'Montserrat', sans-serif !important;
+    background-color: #F3F4F6;
 }
 
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-main) !important;
-    color: var(--text-light);
-}
+/* --- TUS COLORES PERSONALIZADOS (Mapeo manual para Tailwind) --- */
+.bg-primary { background-color: #374151 !important; }
+.text-primary { color: #374151 !important; }
+.bg-secondary { background-color: #FACC15 !important; }
+.text-secondary { color: #FACC15 !important; }
+.bg-card-light { background-color: #FFFFFF !important; }
+.bg-background-light { background-color: #F3F4F6 !important; }
+.text-alert-red { color: #EF4444 !important; }
+.bg-alert-red { background-color: #EF4444 !important; }
+.text-success-green { color: #22C55E !important; }
 
-/* ¡ARREGLO DEL BOTÓN DE LA BARRA LATERAL! */
-#MainMenu { display: none !important; }
-footer { display: none !important; }
-.stDeployButton { display: none !important; }
-/* NO ocultamos el header completo, solo lo hacemos transparente para ver el botón */
-header { background-color: transparent !important; }
-
-.block-container { padding-top: 1rem !important; max-width: 100% !important; }
-
-/* --- NAVBAR SUPERIOR --- */
-.top-brand-bar {
-    background-color: var(--bg-navy);
-    padding: 15px 25px; color: var(--text-light);
-    display: flex; align-items: center; justify-content: space-between;
-    font-weight: 800; font-size: 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    margin-bottom: 20px;
-}
-.nav-links { display: flex; gap: 20px; color: var(--text-muted); font-weight: 500; }
-
-/* --- SIDEBAR --- */
-section[data-testid="stSidebar"] {
-    background-color: var(--bg-navy) !important;
-    border-right: 1px solid rgba(255,255,255,0.05);
-}
-
-/* Radio Buttons del Menú Lateral (Como en tus fotos) */
-.stRadio > div { gap: 5px; }
-.stRadio > div > label {
-    background-color: transparent; color: var(--text-muted);
-    padding: 12px 20px; border-radius: 8px; cursor: pointer;
-    font-weight: 600; font-size: 14px; display: flex; align-items: center;
-    transition: 0.2s; border: 1px solid transparent;
-}
-.stRadio > div > label:hover { background-color: rgba(255,255,255,0.03); color: white; }
-.stRadio > div > label[data-checked="true"] {
-    background: linear-gradient(90deg, rgba(225, 29, 72, 0.15) 0%, transparent 100%);
-    color: white; border-left: 4px solid var(--accent-red);
-}
-.stRadio div[role="radio"] { display: none; }
-
-/* --- COMPONENTES VISUALES --- */
-.floating-map-card {
-    background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px);
-    color: white; padding: 15px; border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5); width: 260px; border: 1px solid rgba(255,255,255,0.1);
-}
-.fmc-header { color: var(--accent-red); font-weight: 800; font-size: 12px; margin-bottom: 10px; }
-.fmc-row { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; display:flex; justify-content:space-between; }
-.fmc-val { font-weight: 700; color: white; }
-
-.forecast-section {
-    background: var(--bg-card); border-radius: 15px; padding: 20px; margin-top: 15px;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-.forecast-container { display: flex; justify-content: space-between; text-align: center; }
-.forecast-item { background: #151e2e; padding: 15px 10px; border-radius: 10px; min-width: 90px; }
-.fc-time { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
-.fc-icon { font-size: 20px; margin: 5px 0; }
-.fc-temp { font-size: 16px; font-weight: bold; margin: 5px 0; color: white; }
-.fc-badge { background: rgba(16, 185, 129, 0.2); color: #10B981; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; display: inline-block; margin-top: 5px;}
-
-.dark-card {
-    background: var(--bg-card); color: var(--text-light);
-    border-radius: 12px; padding: 20px; margin-bottom: 15px;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-.dc-title { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 10px;}
-.dc-value { font-size: 32px; font-weight: 900; }
-
-.mega-footer {
-    background: #050910; margin-top: 40px; padding: 40px; text-align: center;
-    color: var(--text-muted); font-size: 12px; border-top: 1px solid #334155;
-}
+/* Ajustes para los Toggles nativos de Streamlit para que luzcan bien en tu diseño */
+.stToggle { background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 5px; }
