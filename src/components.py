@@ -153,3 +153,30 @@ def render_nasa_card(df_nasa):
         </div>
     </div>
     """
+# --- AGREGAR AL FINAL DE src/components.py ---
+
+def render_nasa_card(df_nasa):
+    anomalias = len(df_nasa) if not df_nasa.empty else 0
+    color = "#EF4444" if anomalias > 0 else "#10B981"
+    status = "¡ANOMALÍA TÉRMICA!" if anomalias > 0 else "SIN ALERTAS SATELITALES"
+    pulse = "animation: pulse-red 2s infinite;" if anomalias > 0 else ""
+    
+    return f"""
+    <div class="dash-card" style="border-left: 4px solid #3B82F6; margin-bottom: 15px; {pulse}">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div style="font-size:10px; color:#3B82F6; font-weight:bold;">
+                <i class="fa-solid fa-satellite fa-fade"></i> ENLACE SATELITAL NASA
+            </div>
+            <div style="font-size:9px; background:rgba(59, 130, 246, 0.2); color:#3B82F6; padding:2px 6px; border-radius:4px; font-weight:bold;">
+                LIVE 24H
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <div style="font-size:32px; font-weight:900; color:{color}; line-height:1;">{anomalias}</div>
+            <div style="font-size:11px; color:#94A3B8;">
+                <b style="color:{color}">{status}</b><br>
+                Escaneo Infrarrojo VIIRS.
+            </div>
+        </div>
+    </div>
+    """

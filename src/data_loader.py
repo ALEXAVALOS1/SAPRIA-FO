@@ -215,3 +215,22 @@ def get_nasa_firms_data():
     except Exception as e:
         print(f"Error de conexión con la NASA: {e}")
         return pd.DataFrame()
+    # --- AGREGAR AL FINAL DE src/data_loader.py ---
+
+def get_nasa_firms_data():
+    """Descarga datos satelitales en vivo de la NASA (Anomalías térmicas 24h)."""
+    url = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Central_America_24h.csv"
+    try:
+        df_nasa = pd.read_csv(url)
+        # Filtrar solo el área de Ciudad Juárez / El Paso
+        lat_min, lat_max = 31.0, 32.2
+        lon_min, lon_max = -107.0, -106.0
+        
+        df_filtered = df_nasa[
+            (df_nasa['latitude'] >= lat_min) & (df_nasa['latitude'] <= lat_max) &
+            (df_nasa['longitude'] >= lon_min) & (df_nasa['longitude'] <= lon_max)
+        ]
+        return df_filtered
+    except Exception as e:
+        print(f"Error NASA: {e}")
+        return pd.DataFrame()
