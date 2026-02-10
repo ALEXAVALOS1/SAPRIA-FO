@@ -189,3 +189,29 @@ def find_nearest_station(incident_lat, incident_lon, df_infra):
     nearest = bomberos.sort_values('dist').iloc[0]
     
     return nearest
+
+def get_nasa_firms_data():
+    """
+    Descarga el feed público de la NASA (FIRMS) de anomalías térmicas 
+    detectadas por satélite en las últimas 24 horas (Centroamérica y México).
+    """
+    url = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_Central_America_24h.csv"
+    
+    try:
+        # Descargar el CSV en vivo desde los servidores de la NASA
+        df_nasa = pd.read_csv(url)
+        
+        # Filtro de Bounding Box para la región de Ciudad Juárez / El Paso
+        # Ampliamos un poco el margen para ver si hay incendios acercándose por el desierto
+        lat_min, lat_max = 31.0, 32.2
+        lon_min, lon_max = -107.0, -106.0
+        
+        df_filtered = df_nasa[
+            (df_nasa['latitude'] >= lat_min) & (df_nasa['latitude'] <= lat_max) &
+            (df_nasa['longitude'] >= lon_min) & (df_nasa['longitude'] <= lon_max)
+        ]
+        
+        return df_filtered
+    except Exception as e:
+        print(f"Error de conexión con la NASA: {e}")
+        return pd.DataFrame()
