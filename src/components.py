@@ -133,3 +133,4 @@ def render_footer():
         </div>
     </footer>
     """, unsafe_allow_html=True)
+    
