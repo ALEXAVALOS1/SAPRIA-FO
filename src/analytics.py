@@ -33,11 +33,12 @@ def render_3d_density_map(df):
         bearing=-15
     )
 
-    # Renderizar el mapa
+    # Renderizar el mapa (AQUÍ ESTÁ LA MAGIA QUE ARREGLA EL FONDO NEGRO)
     r = pdk.Deck(
+        map_provider="carto",  # <--- Usa el proveedor gratuito
+        map_style="dark",      # <--- Usa el estilo oscuro
         layers=[layer], 
         initial_view_state=view_state, 
-        map_style="mapbox://styles/mapbox/dark-v10",
         tooltip={"text": "Concentración Crítica: {elevationValue} incidentes"}
     )
     
