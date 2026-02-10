@@ -3,6 +3,7 @@ from streamlit_folium import st_folium
 import folium
 from folium.plugins import HeatMap
 import pandas as pd
+from datetime import datetime
 
 # --- CONFIGURACIÓN ---
 st.set_page_config(page_title="SAPRIA-FO | Multi-Screen", page_icon="🖥️", layout="wide", initial_sidebar_state="expanded")
@@ -14,21 +15,21 @@ def local_css(file_name):
     except Exception as e: pass
 local_css("assets/style.css")
 
-# --- IMPORTS ---
+# --- IMPORTS LOCALES ---
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_air_quality, get_nasa_firms_data
     from src.components import render_top_navbar, render_risk_card, render_small_stat, render_map_floating_card, render_air_quality_card, render_forecast_section, render_nasa_card
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters, generate_ai_briefing
-    # IMPORTAMOS NUESTRA NUEVA DIVISIÓN DE ANALÍTICA
     from src.analytics import render_3d_density_map, render_statistics
+    # IMPORTAMOS EL MOTOR DE PDF QUE ACABAS DE CREAR
+    from src.report_generator import generate_pdf_report
 except ImportError as e:
     st.error(f"Error cargando módulos: {e}")
     st.stop()
 
 # --- VARIABLES GLOBALES ---
 if 'page' not in st.session_state: st.session_state['page'] = 'Monitor'
-if 'sim_coords' not in st.session_state: st.session_state['sim_coords'] = None
 JUAREZ_LAT, JUAREZ_LON = 31.7389, -106.4856 
 
 # --- DATOS ---
@@ -44,14 +45,19 @@ def get_data_bundle():
 df, weather, aqi, df_infra, df_nasa = get_data_bundle()
 epicentros_ia = get_risk_clusters(df, num_clusters=5)
 
+# --- LÓGICA CLIMA/RIESGO GLOBAL ---
+sim_wind_speed = weather['wind']['speed'] * 3.6 if weather else 20
+sim_temp = weather['main']['temp'] if weather else 30
+sim_hum = weather['main']['humidity'] if weather else 20
+fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind_speed)
+
 # --- SIDEBAR & NAVEGACIÓN ---
 with st.sidebar:
     st.markdown("<h1 style='color:#E11D48; font-size:24px; margin:0;'>SAPRIA-FO</h1><p style='color:#10B981; font-weight:bold; font-size:11px;'>🌐 Global Intel v7.0</p>", unsafe_allow_html=True)
     
-    # EL MENÚ AHORA SÍ CAMBIARÁ LA PANTALLA
     opcion = st.radio("Menú", ["🗺️ Monitor", "🔥 Incidentes", "📄 Reportes"], label_visibility="collapsed")
     
-    # Lógica de enrutamiento
+    # Enrutamiento de páginas
     if "Monitor" in opcion: st.session_state['page'] = 'Monitor'
     elif "Incidentes" in opcion: st.session_state['page'] = 'Incidentes'
     elif "Reportes" in opcion: st.session_state['page'] = 'Reportes'
@@ -63,19 +69,14 @@ with st.sidebar:
             col = "#EF4444" if ep['peligro'] == 'CRÍTICO' else "#F59E0B"
             st.markdown(f'<div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:6px; margin-top:5px; font-size:11px; border-left: 2px solid {col};"><b style="color:white;">Epicentro {ep["id"]}</b><br><span style="color:#94A3B8;">Concentración: {ep["weight"]} eventos</span></div>', unsafe_allow_html=True)
 
-# Renderizamos la Navbar en todas las páginas
+# Renderizamos la Navbar arriba
 render_top_navbar()
 
 # ==========================================
-# PANTALLA 1: MONITOR (EL DASHBOARD QUE YA CONOCES)
+# PANTALLA 1: MONITOR (DASHBOARD TÁCTICO)
 # ==========================================
 if st.session_state['page'] == 'Monitor':
     col_main, col_sidebar = st.columns([3, 1])
-
-    sim_wind_speed = weather['wind']['speed'] * 3.6 if weather else 20
-    sim_temp = weather['main']['temp'] if weather else 30
-    sim_hum = weather['main']['humidity'] if weather else 20
-    fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind_speed)
 
     with col_main:
         num_anomalias = len(df_nasa) if not df_nasa.empty else 0
@@ -113,25 +114,48 @@ if st.session_state['page'] == 'Monitor':
         st.markdown(render_air_quality_card(aqi), unsafe_allow_html=True)
 
 # ==========================================
-# PANTALLA 2: REPORTES Y ANALÍTICA 3D
+# PANTALLA 2: REPORTES Y ANALÍTICA 3D (¡AQUÍ ESTÁ EL PDF!)
 # ==========================================
 elif st.session_state['page'] == 'Reportes':
     st.markdown("<h2 style='color:#E11D48;'>División de Inteligencia Estratégica</h2>", unsafe_allow_html=True)
     st.markdown("<p style='color:#94A3B8;'>Panel de análisis avanzado de datos históricos e identificación de patrones.</p><hr style='border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
     
-    # Llamamos a nuestras funciones mágicas de analítica
+    # --- GENERADOR DE PDF ---
+    st.markdown("<h3 style='color:#F8FAFC;'><i class='fa-solid fa-file-pdf' style='color:#E11D48;'></i> Generador de Informes Tácticos</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#94A3B8; font-size:13px;'>Compila la información en tiempo real, predicciones de IA y alertas de la NASA en un documento oficial en formato PDF.</p>", unsafe_allow_html=True)
+    
+    if st.button("📄 GENERAR INFORME OFICIAL (PDF)", type="primary"):
+        with st.spinner("Compilando datos de Inteligencia Artificial y Satélites..."):
+            try:
+                num_anomalias = len(df_nasa) if not df_nasa.empty else 0
+                # Llamar al archivo report_generator.py que creaste
+                pdf_path = generate_pdf_report(weather, fwi_cat, num_anomalias, epicentros_ia)
+                
+                with open(pdf_path, "rb") as f:
+                    st.download_button(
+                        label="⬇️ DESCARGAR DOCUMENTO",
+                        data=f,
+                        file_name=f"SAPRIA_Reporte_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf",
+                        mime="application/pdf"
+                    )
+                st.success("¡Informe generado con éxito! Haz clic en descargar.")
+            except Exception as e:
+                st.error(f"Error generando el PDF: {e}")
+
+    st.markdown("<hr style='border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
+    
+    # --- MAPA 3D Y GRÁFICOS ---
     render_3d_density_map(df)
     render_statistics(df)
 
 # ==========================================
-# PANTALLA 3: GESTIÓN DE INCIDENTES (BASE DE DATOS)
+# PANTALLA 3: GESTIÓN DE INCIDENTES
 # ==========================================
 elif st.session_state['page'] == 'Incidentes':
     st.markdown("<h2 style='color:#F59E0B;'>Base de Datos Operativa</h2>", unsafe_allow_html=True)
     st.markdown("<p style='color:#94A3B8;'>Registro maestro de incidencias. Puedes filtrar, ordenar y buscar datos específicos.</p>", unsafe_allow_html=True)
     
     if not df.empty:
-        # Mostramos un DataFrame interactivo con estilo oscuro
         st.dataframe(
             df[['fecha', 'colonia', 'tipo_incidente', 'causa', 'dano']],
             use_container_width=True,
