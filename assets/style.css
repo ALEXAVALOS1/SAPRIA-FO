@@ -13,13 +13,14 @@
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
     color: var(--text-main);
+    background-color: var(--bg-dark);
 }
 
 .stApp {
     background-color: var(--bg-dark);
 }
 
-/* OCULTAR COSAS NATIVAS QUE MOLESTAN */
+/* OCULTAR COSAS NATIVAS */
 #MainMenu, footer, header, .stDeployButton { display: none !important; }
 .block-container { padding-top: 1rem !important; padding-bottom: 5rem !important; }
 
@@ -63,7 +64,7 @@ section[data-testid="stSidebar"] {
 
 /* --- TARJETAS FLOTANTES (MAPA) --- */
 .floating-map-card {
-    background: rgba(30, 41, 59, 0.95); /* Oscuro translúcido */
+    background: rgba(30, 41, 59, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.1);
     color: white;
@@ -85,7 +86,7 @@ section[data-testid="stSidebar"] {
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
-/* --- PRONÓSTICO (ARREGLO VISUAL - Importante para la imagen 83fa2b) --- */
+/* --- PRONÓSTICO (ARREGLO VISUAL) --- */
 .forecast-section {
     background-color: var(--bg-card);
     border-radius: 12px;
@@ -97,7 +98,7 @@ section[data-testid="stSidebar"] {
 .forecast-container {
     display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;
 }
-/* Ocultar barra de scroll fea */
+/* Ocultar barra de scroll */
 .forecast-container::-webkit-scrollbar { height: 4px; }
 .forecast-container::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
 
