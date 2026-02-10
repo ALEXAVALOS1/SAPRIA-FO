@@ -4,7 +4,7 @@ import plotly.express as px
 import pandas as pd
 
 def render_3d_density_map(df):
-    """Genera un mapa 3D de hexágonos estilo Cyberpunk."""
+    """Genera un mapa 3D de hexágonos estilo Cyberpunk con altura ajustada."""
     if df.empty: return
     
     st.markdown("<h3 style='color:#F8FAFC; margin-bottom:15px;'><i class='fa-solid fa-cube' style='color:#3B82F6;'></i> Topografía de Riesgo 3D</h3>", unsafe_allow_html=True)
@@ -15,28 +15,22 @@ def render_3d_density_map(df):
         "HexagonLayer",
         data=df,
         get_position=["lon", "lat"],
-        radius=300, # Tamaño del hexágono en metros
-        elevation_scale=50, # Qué tan alto crece la torre
+        radius=300, 
+        elevation_scale=15, # <--- ¡AQUÍ ESTÁ EL CAMBIO! (Antes era 50, ahora son más bajas)
         elevation_range=[0, 1000],
         extruded=True,
-        get_fill_color="[225, 29, 72, 200]", # Rojo SAPRIA con transparencia
+        get_fill_color="[225, 29, 72, 200]", 
         pickable=True,
         auto_highlight=True
     )
 
-    # Inclinación de la cámara (pitch) para ver el 3D
     view_state = pdk.ViewState(
-        latitude=31.7389, 
-        longitude=-106.4856, 
-        zoom=10.5, 
-        pitch=50, 
-        bearing=-15
+        latitude=31.7389, longitude=-106.4856, zoom=10.5, pitch=50, bearing=-15
     )
 
-    # Renderizar el mapa (AQUÍ ESTÁ LA MAGIA QUE ARREGLA EL FONDO NEGRO)
     r = pdk.Deck(
-        map_provider="carto",  # <--- Usa el proveedor gratuito
-        map_style="dark",      # <--- Usa el estilo oscuro
+        map_provider="carto",
+        map_style="dark",
         layers=[layer], 
         initial_view_state=view_state, 
         tooltip={"text": "Concentración Crítica: {elevationValue} incidentes"}
@@ -53,32 +47,15 @@ def render_statistics(df):
     col1, col2 = st.columns(2)
     
     with col1:
-        # Gráfico de Barras: Top 10 Colonias
         top_colonias = df['colonia'].value_counts().head(10).reset_index()
         top_colonias.columns = ['Colonia', 'Incidentes']
-        
-        fig_bar = px.bar(
-            top_colonias, x='Incidentes', y='Colonia', orientation='h',
-            title='Top 10 Zonas Críticas',
-            color='Incidentes', color_continuous_scale='Reds'
-        )
-        fig_bar.update_layout(
-            template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-            yaxis={'categoryorder':'total ascending'}, font=dict(family="Inter", color="#94A3B8")
-        )
+        fig_bar = px.bar(top_colonias, x='Incidentes', y='Colonia', orientation='h', title='Top 10 Zonas Críticas', color='Incidentes', color_continuous_scale='Reds')
+        fig_bar.update_layout(template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', yaxis={'categoryorder':'total ascending'}, font=dict(family="Inter", color="#94A3B8"))
         st.plotly_chart(fig_bar, use_container_width=True)
         
     with col2:
-        # Gráfico de Dona: Tipos de Incidente
         tipo_inc = df['tipo_incidente'].value_counts().reset_index()
         tipo_inc.columns = ['Tipo', 'Cantidad']
-        
-        fig_pie = px.pie(
-            tipo_inc, values='Cantidad', names='Tipo', hole=0.6,
-            title='Distribución por Tipo de Evento',
-            color_discrete_sequence=px.colors.sequential.Plasma
-        )
-        fig_pie.update_layout(
-            template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', font=dict(family="Inter", color="#94A3B8")
-        )
+        fig_pie = px.pie(tipo_inc, values='Cantidad', names='Tipo', hole=0.6, title='Distribución por Tipo de Evento', color_discrete_sequence=px.colors.sequential.Plasma)
+        fig_pie.update_layout(template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', font=dict(family="Inter", color="#94A3B8"))
         st.plotly_chart(fig_pie, use_container_width=True)
