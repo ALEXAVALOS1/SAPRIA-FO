@@ -52,12 +52,20 @@ fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind_speed)
 
 # --- SIDEBAR & NAVEGACIÓN ---
 with st.sidebar:
-    st.markdown("<h1 style='color:#E11D48; font-size:24px; margin:0;'>SAPRIA-FO</h1><p style='color:#10B981; font-weight:bold; font-size:11px;'>🌐 Global Intel v8.0</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color:#E11D48; font-size:24px; margin:0;'>SAPRIA-FO</h1><p style='color:#10B981; font-weight:bold; font-size:11px;'>🌐 Global Intel v8.5</p>", unsafe_allow_html=True)
     opcion = st.radio("Menú", ["🗺️ Monitor", "🔥 Incidentes", "📄 Reportes"], label_visibility="collapsed")
     if "Monitor" in opcion: st.session_state['page'] = 'Monitor'
     elif "Incidentes" in opcion: st.session_state['page'] = 'Incidentes'
     elif "Reportes" in opcion: st.session_state['page'] = 'Reportes'
 
+    st.markdown("---")
+    
+    # --- FILTROS TÁCTICOS (NUEVO) ---
+    st.markdown("<div style='font-size:10px; color:#64748B; margin-bottom: 10px;'>FILTROS DE CAPAS</div>", unsafe_allow_html=True)
+    show_heatmap = st.toggle("🔥 Mapa de Calor", value=True)
+    show_ai = st.toggle("🧠 Zonas Predictivas IA", value=True)
+    show_infra = st.toggle("🏭 Infraestructura Crítica", value=False) # ¡Apagado por defecto para limpiar el mapa!
+    
     st.markdown("---")
     st.markdown("<div style='font-size:10px; color:#64748B;'>CLÚSTERES IA (K-MEANS)</div>", unsafe_allow_html=True)
     if epicentros_ia:
@@ -84,39 +92,45 @@ if st.session_state['page'] == 'Monitor':
         
         m = folium.Map(location=[JUAREZ_LAT, JUAREZ_LON], zoom_start=11, tiles="CartoDB dark_matter")
         
-        if not df.empty: HeatMap([[r['lat'], r['lon']] for _, r in df.iterrows()], radius=15, gradient={0.4:'#F59E0B', 1:'#E11D48'}).add_to(m)
-        if not df_infra.empty:
+        # 1. Capa Histórica (Condicional)
+        if show_heatmap and not df.empty: 
+            HeatMap([[r['lat'], r['lon']] for _, r in df.iterrows()], radius=15, gradient={0.4:'#F59E0B', 1:'#E11D48'}).add_to(m)
+        
+        # 2. Capa Infraestructura (Condicional)
+        if show_infra and not df_infra.empty:
             for _, r in df_infra.iterrows():
                 ic = 'truck-medical' if r['tipo']=='Bomberos' else r['icon']
                 folium.Marker([r['lat'], r['lon']], tooltip=r['nombre'], icon=folium.Icon(color="black", icon_color=r['color'], icon=ic, prefix="fa")).add_to(m)
+        
+        # 3. Capa NASA (Siempre visible por seguridad)
         if not df_nasa.empty:
             for _, r in df_nasa.iterrows():
                 folium.CircleMarker(location=[r['latitude'], r['longitude']], radius=10, color="#EF4444", fill=True, fill_color="#EF4444", fill_opacity=0.7).add_to(m)
                 folium.Marker([r['latitude'], r['longitude']], icon=folium.Icon(color="red", icon="satellite-dish", prefix="fa")).add_to(m)
         
-        # --- NUEVA LÓGICA DE RUTEO AL HACER CLIC ---
+        # 4. Capa IA (Condicional)
+        if show_ai:
+            for ep in epicentros_ia:
+                color_zona = "#E11D48" if ep['peligro'] == "CRÍTICO" else "#F59E0B"
+                folium.Circle(location=[ep['lat'], ep['lon']], radius=1500, color=color_zona, weight=1, fill=True, fill_opacity=0.1).add_to(m)
+                folium.Marker([ep['lat'], ep['lon']], icon=folium.Icon(color="purple" if ep['peligro']=="CRÍTICO" else "orange", icon="brain", prefix="fa")).add_to(m)
+
+        # 5. Ruteo (Animación al hacer clic)
         if st.session_state['sim_coords']:
             sim_lat = st.session_state['sim_coords']['lat']
             sim_lon = st.session_state['sim_coords']['lng']
-            
-            # Dibujar el incendio
             folium.Marker([sim_lat, sim_lon], icon=folium.Icon(color="red", icon="fire", prefix="fa")).add_to(m)
             
-            # Buscar estación y ruta
             nearest_station = find_nearest_station(sim_lat, sim_lon, df_infra)
             if nearest_station is not None:
+                # Asegurarnos de dibujar la estación origen aunque la capa esté oculta
+                folium.Marker([nearest_station['lat'], nearest_station['lon']], tooltip=f"ORIGEN: {nearest_station['nombre']}", icon=folium.Icon(color="blue", icon="truck-medical", prefix="fa")).add_to(m)
                 route_data = get_route_osrm(nearest_station['lat'], nearest_station['lon'], sim_lat, sim_lon)
                 if route_data:
-                    # Dibujar la ruta animada (AntPath)
-                    AntPath(
-                        locations=route_data['path'], 
-                        color="#3B82F6", weight=5, opacity=0.8, delay=800, 
-                        dash_array=[10, 20]
-                    ).add_to(m)
+                    AntPath(locations=route_data['path'], color="#3B82F6", weight=5, opacity=0.8, delay=800, dash_array=[10, 20]).add_to(m)
 
         map_data = st_folium(m, width="100%", height=480)
         
-        # Detectar el clic
         if map_data['last_clicked'] and st.session_state['sim_coords'] != map_data['last_clicked']:
             st.session_state['sim_coords'] = map_data['last_clicked']
             st.rerun()
@@ -124,7 +138,6 @@ if st.session_state['page'] == 'Monitor':
         st.markdown(render_forecast_section(), unsafe_allow_html=True)
 
     with col_sidebar:
-        # --- TARJETA LOGÍSTICA (Aparece al hacer clic) ---
         if route_data and nearest_station is not None:
             st.markdown(render_tactical_card(route_data, nearest_station['nombre']), unsafe_allow_html=True)
             
