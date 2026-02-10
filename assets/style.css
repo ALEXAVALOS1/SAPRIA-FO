@@ -1,17 +1,14 @@
-/* --- SAPRIA-FO: LIGHT/NAVY CORPORATE THEME --- */
+/* --- SAPRIA-FO: LIGHT/NAVY CORPORATE THEME v2 --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-    --bg-main: #F4F6F8;      /* Fondo Claro Principal */
-    --bg-navy: #0F172A;      /* Azul Marino Oscuro (Sidebar/Navbar/Footer) */
-    --bg-card-dark: #1E293B; /* Tarjetas del panel derecho */
-    --bg-card-light: #FFFFFF;/* Tarjetas blancas (Pronóstico, Mapa) */
-    
+    --bg-main: #F4F6F8;
+    --bg-navy: #0F172A;
+    --bg-card-dark: #1E293B;
+    --bg-card-light: #FFFFFF;
     --accent-red: #E11D48;
     --accent-yellow: #FACC15;
-    --accent-green: #10B981;
     --accent-blue: #3B82F6;
-    
     --text-dark: #0F172A;
     --text-light: #F8FAFC;
     --text-muted: #64748B;
@@ -23,53 +20,76 @@ html, body, [class*="css"] {
     color: var(--text-dark);
 }
 
-/* Ocultar UI nativa */
 #MainMenu, footer, header, .stDeployButton { display: none !important; }
 .block-container { padding-top: 0 !important; max-width: 100% !important; }
 
-/* --- NAVBAR SUPERIOR --- */
-.top-navbar {
-    display: flex; justify-content: space-between; align-items: center;
+/* --- NAVBAR SUPERIOR DE BRANDING (HTML) --- */
+.top-brand-bar {
     background-color: var(--bg-navy);
-    padding: 12px 25px; color: var(--text-light);
-    border-bottom: 2px solid var(--accent-yellow);
-    margin-bottom: 15px;
+    padding: 15px 25px; color: var(--text-light);
+    display: flex; align-items: center;
+    font-weight: 800; font-size: 18px; gap: 10px;
 }
-.nav-brand { font-weight: 800; font-size: 16px; display:flex; gap:10px; align-items:center;}
-.nav-brand .yellow-text { color: var(--accent-yellow); }
-.nav-links { display: flex; gap: 20px; font-size: 13px; font-weight: 500; }
+.yellow-text { color: var(--accent-yellow); }
+
+/* --- NAVEGACIÓN HORIZONTAL SUPERIOR (st.radio customizado) --- */
+/* Contenedor principal del radio horizontal */
+[data-testid="stRadio"] > div[role="radiogroup"] {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    background: white;
+    padding: 10px 20px;
+    border-bottom: 1px solid #E2E8F0;
+    gap: 10px;
+}
+
+/* Estilo de los botones inactivos */
+[data-testid="stRadio"] > div[role="radiogroup"] > label {
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid transparent !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease;
+}
+
+/* Hover */
+[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
+    background-color: #F1F5F9 !important;
+    color: var(--text-dark) !important;
+}
+
+/* Estilo del botón ACTIVO */
+[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"] {
+    background-color: var(--bg-navy) !important;
+    color: var(--text-light) !important;
+    border: 1px solid var(--bg-navy) !important;
+}
+
+/* Ocultar el circulito nativo */
+[data-testid="stRadio"] div[role="radio"] { display: none; }
+
 
 /* --- SIDEBAR --- */
 section[data-testid="stSidebar"] {
     background-color: var(--bg-navy) !important;
     border-right: none;
 }
-.stSidebar [data-testid="stMarkdownContainer"] p, 
-.stSidebar [data-testid="stMarkdownContainer"] h1 {
-    color: var(--text-light) !important;
+/* Títulos y textos del sidebar en blanco */
+.stSidebar h1, .stSidebar h2, .stSidebar h3, .stSidebar p, .stSidebar span, .stSidebar div {
+    color: var(--text-light);
 }
+/* Ajuste específico para los toggles en el sidebar */
+.stToggle p { color: var(--text-light) !important; font-weight: 500; }
 
-/* Radio Buttons del Menú */
-.stRadio > div { gap: 10px; }
-.stRadio > div > label {
-    background-color: transparent; color: var(--text-muted);
-    padding: 12px 20px; border-radius: 8px; cursor: pointer;
-    font-weight: 600; font-size: 14px; display: flex; align-items: center;
-    transition: 0.3s;
-}
-.stRadio > div > label:hover { color: var(--text-light); }
-.stRadio > div > label[data-checked="true"] {
-    background: rgba(255,255,255,0.05); color: white;
-    border-left: 4px solid var(--accent-red);
-}
-.stRadio div[role="radio"] { display: none; }
 
-/* --- TARJETAS CLARAS (MAPA Y PRONÓSTICO) --- */
+/* --- COMPONENTES VISUALES --- */
 .floating-map-card {
-    background: var(--bg-card-light);
-    color: var(--text-dark); padding: 15px; border-radius: 12px;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 260px;
-    border: 1px solid rgba(0,0,0,0.05);
+    background: var(--bg-card-light); color: var(--text-dark); padding: 15px; border-radius: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 260px; border: 1px solid rgba(0,0,0,0.05);
 }
 .fmc-header { color: var(--accent-red); font-weight: 800; font-size: 12px; margin-bottom: 10px; }
 .fmc-row { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; display:flex; justify-content:space-between; }
@@ -84,9 +104,7 @@ section[data-testid="stSidebar"] {
 .fc-time { font-size: 11px; color: var(--text-muted); font-weight: 600; }
 .fc-icon { font-size: 22px; margin: 10px 0; }
 .fc-temp { font-size: 18px; font-weight: 800; color: var(--text-dark); }
-.fc-badge { background: #E2E8F0; color: #475569; padding: 3px 8px; border-radius: 12px; font-size: 9px; font-weight: 800; }
 
-/* --- TARJETAS OSCURAS (PANEL DERECHO) --- */
 .dark-card {
     background: var(--bg-card-dark); color: var(--text-light);
     border-radius: 16px; padding: 20px; margin-bottom: 15px;
@@ -95,8 +113,10 @@ section[data-testid="stSidebar"] {
 .dc-title { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 10px;}
 .dc-value { font-size: 32px; font-weight: 900; }
 
-/* --- FOOTER NAVY --- */
+/* --- FOOTER --- */
 .mega-footer {
     background: var(--bg-navy); margin-top: 40px; padding: 40px;
     color: var(--text-muted); font-size: 13px; border-top: 4px solid var(--accent-yellow);
 }
+.mega-footer h2, .mega-footer h4 { color: var(--accent-yellow); }
+.mega-footer p, .mega-footer li, .mega-footer div { color: var(--text-muted); }

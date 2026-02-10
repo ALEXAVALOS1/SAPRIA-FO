@@ -1,13 +1,12 @@
 import streamlit as st
 
+# --- SOLO BRANDING, SIN ENLACES FALSOS ---
 def render_top_navbar():
     st.markdown("""
-    <div class="top-navbar">
-        <div class="nav-brand">
-            <span class="yellow-text">SAPRIA-FO</span> <span>Monitoreo Municipal Juárez</span>
-        </div>
-        <div class="nav-links">
-            <span>Dashboard</span> <span>Reportes</span> <span>Alertas</span> <span>Prevención</span> <span>Ayuda</span>
+    <div class="top-brand-bar">
+        <i class="fa-solid fa-shield-halved yellow-text" style="font-size: 24px;"></i>
+        <div style="margin-left:15px;">
+            <span class="yellow-text">SAPRIA-FO</span> <span>Centro de Mando Municipal</span>
         </div>
     </div>
     """, unsafe_allow_html=True)
