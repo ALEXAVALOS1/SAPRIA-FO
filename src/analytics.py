@@ -1,116 +1,83 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 import pydeck as pdk
+import plotly.express as px
+import pandas as pd
 
-def render_3d_map(df):
-    """Genera un mapa 3D de columnas hexagonales basado en densidad."""
-    st.markdown("### 🏙️ DENSIDAD GEOESPACIAL 3D")
+def render_3d_density_map(df):
+    """Genera un mapa 3D de hexágonos estilo Cyberpunk."""
+    if df.empty: return
     
-    # Configuración de la vista inicial (Juárez)
-    view_state = pdk.ViewState(
-        latitude=31.7389,
-        longitude=-106.4856,
-        zoom=10,
-        pitch=50, # Ángulo de inclinación para ver 3D
-    )
+    st.markdown("<h3 style='color:#F8FAFC; margin-bottom:15px;'><i class='fa-solid fa-cube' style='color:#3B82F6;'></i> Topografía de Riesgo 3D</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color:#94A3B8; font-size:13px;'>Análisis de densidad volumétrica de incidentes históricos.</p>", unsafe_allow_html=True)
 
-    # Capa de Hexágonos
+    # Configuración de la capa 3D (Hexágonos)
     layer = pdk.Layer(
         "HexagonLayer",
         data=df,
         get_position=["lon", "lat"],
-        radius=200, # Tamaño del hexágono
-        elevation_scale=50, # Altura de las torres
+        radius=300, # Tamaño del hexágono en metros
+        elevation_scale=50, # Qué tan alto crece la torre
         elevation_range=[0, 1000],
-        pickable=True,
         extruded=True,
-        coverage=1
+        get_fill_color="[225, 29, 72, 200]", # Rojo SAPRIA con transparencia
+        pickable=True,
+        auto_highlight=True
     )
 
-    # Renderizar
-    st.pydeck_chart(pdk.Deck(
-        map_style="mapbox://styles/mapbox/dark-v10", # Estilo oscuro
-        initial_view_state=view_state,
-        layers=[layer],
-        tooltip={"text": "Densidad de Incidentes"}
-    ))
+    # Inclinación de la cámara (pitch) para ver el 3D
+    view_state = pdk.ViewState(
+        latitude=31.7389, 
+        longitude=-106.4856, 
+        zoom=10.5, 
+        pitch=50, 
+        bearing=-15
+    )
 
-def render_temporal_analysis(df):
-    """Analiza horas y días críticos."""
-    st.markdown("### 🕒 PATRONES TEMPORALES")
-    
-    if df.empty:
-        st.info("Sin datos suficientes.")
-        return
-
-    # Extraer hora y día
-    df['hora'] = df['fecha'].dt.hour
-    df['dia_semana'] = df['fecha'].dt.day_name()
-    
-    # Agrupar
-    heatmap_data = df.groupby(['dia_semana', 'hora']).size().reset_index(name='conteo')
-    
-    # Ordenar días
-    dias_orden = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    
-    fig = px.density_heatmap(
-        heatmap_data, 
-        x='hora', 
-        y='dia_semana', 
-        z='conteo', 
-        nbinsx=24,
-        category_orders={'dia_semana': dias_orden},
-        color_continuous_scale='Magma',
-        title="Mapa de Calor: Hora vs Día"
+    # Renderizar el mapa
+    r = pdk.Deck(
+        layers=[layer], 
+        initial_view_state=view_state, 
+        map_style="mapbox://styles/mapbox/dark-v10",
+        tooltip={"text": "Concentración Crítica: {elevationValue} incidentes"}
     )
     
-    fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font_color='white'
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
+    st.pydeck_chart(r, use_container_width=True)
 
-def render_cause_analysis(df):
-    """Gráfico Solar (Sunburst) de Colonias y Causas."""
-    st.markdown("### 🔗 JERARQUÍA DE CAUSALIDAD")
-    
-    if df.empty: return
-
-    # Top 10 colonias para no saturar el gráfico
-    top_colonias = df['colonia'].value_counts().head(10).index
-    df_filtered = df[df['colonia'].isin(top_colonias)]
-    
-    fig = px.sunburst(
-        df_filtered, 
-        path=['colonia', 'tipo_incidente'], 
-        title="Top Colonias > Tipos de Incidente",
-        color_discrete_sequence=px.colors.qualitative.Pastel
-    )
-    
-    fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        font_color='white'
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-
-def render_kpi_metrics(df):
-    """Muestra métricas rápidas de inteligencia."""
+def render_statistics(df):
+    """Genera gráficos interactivos con Plotly en modo oscuro."""
     if df.empty: return
     
-    c1, c2, c3 = st.columns(3)
+    st.markdown("<h3 style='color:#F8FAFC; margin-bottom:15px; margin-top:30px;'><i class='fa-solid fa-chart-pie' style='color:#F59E0B;'></i> Análisis Estadístico</h3>", unsafe_allow_html=True)
     
-    with c1:
-        st.metric("Total Histórico", len(df), "Incidentes validados")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Gráfico de Barras: Top 10 Colonias
+        top_colonias = df['colonia'].value_counts().head(10).reset_index()
+        top_colonias.columns = ['Colonia', 'Incidentes']
         
-    with c2:
-        # Calcular tiempo promedio entre incidentes (Simulado si no hay hora exacta)
-        st.metric("Frecuencia", "Cada 14h", "Promedio estimado")
+        fig_bar = px.bar(
+            top_colonias, x='Incidentes', y='Colonia', orientation='h',
+            title='Top 10 Zonas Críticas',
+            color='Incidentes', color_continuous_scale='Reds'
+        )
+        fig_bar.update_layout(
+            template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+            yaxis={'categoryorder':'total ascending'}, font=dict(family="Inter", color="#94A3B8")
+        )
+        st.plotly_chart(fig_bar, use_container_width=True)
         
-    with c3:
-        top_causa = df['causa'].mode()[0]
-        st.metric("Causa #1", top_causa, "Mayor incidencia")
+    with col2:
+        # Gráfico de Dona: Tipos de Incidente
+        tipo_inc = df['tipo_incidente'].value_counts().reset_index()
+        tipo_inc.columns = ['Tipo', 'Cantidad']
+        
+        fig_pie = px.pie(
+            tipo_inc, values='Cantidad', names='Tipo', hole=0.6,
+            title='Distribución por Tipo de Evento',
+            color_discrete_sequence=px.colors.sequential.Plasma
+        )
+        fig_pie.update_layout(
+            template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', font=dict(family="Inter", color="#94A3B8")
+        )
+        st.plotly_chart(fig_pie, use_container_width=True)
