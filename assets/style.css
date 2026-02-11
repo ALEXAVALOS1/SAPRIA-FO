@@ -1,60 +1,71 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
-/* Ocultar cosas de Streamlit */
+/* Ocultar elementos nativos de Streamlit */
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
-/* Fondo General */
+/* Configuración Base */
 .stApp { background-color: #F3F4F6 !important; }
-.block-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+.block-container { 
+    max-width: 100% !important; 
+    padding: 0 !important; 
+    margin: 0 !important; 
+    font-family: 'Montserrat', sans-serif !important;
+}
 
-/* --- BARRA SUPERIOR UNIFICADA (El Telón Oscuro) --- */
+/* ⬛ BARRA SUPERIOR FIJA (Gris Oxford) */
 .fixed-header {
     position: fixed;
     top: 0; left: 0; right: 0;
-    height: 90px;
-    background-color: #374151; /* Gris Oxford */
+    height: 80px;
+    background-color: #374151; /* GRIS OXFORD */
     z-index: 99999;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
     border-bottom: 3px solid #FACC15; /* Línea dorada */
 }
 
-/* Espaciador para que el contenido baje */
+/* Espaciador para que el contenido no quede oculto */
 .content-spacer { height: 110px; }
 
-/* --- MENÚ DE NAVEGACIÓN (Letras Doradas) --- */
-div[data-testid="stRadio"] { margin-top: 15px; }
+/* 🔘 MENÚ DE NAVEGACIÓN (Estilo Dorado) */
+div[data-testid="stRadio"] { margin-top: 10px; }
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex; gap: 30px; justify-content: center;
+    display: flex; gap: 25px; justify-content: center;
     background: transparent !important;
 }
+
 div[data-testid="stRadio"] label {
-    color: #9CA3AF !important; /* Gris suave inactivo */
-    font-family: 'Montserrat', sans-serif !important;
+    color: #9CA3AF !important; /* Gris suave */
     font-weight: 600 !important; font-size: 14px !important;
-    cursor: pointer; background: transparent !important; border: none !important;
+    cursor: pointer;
+    background: transparent !important; border: none !important;
     transition: 0.3s;
 }
+
 div[data-testid="stRadio"] label:hover {
-    color: #FACC15 !important; /* Dorado al pasar mouse */
+    color: #FACC15 !important;
 }
+
 div[data-testid="stRadio"] label[data-checked="true"] {
-    color: #FACC15 !important; /* Dorado Activo */
+    color: #FACC15 !important; /* DORADO ACTIVO */
     font-weight: 800 !important;
     border-bottom: 2px solid #FACC15 !important;
 }
+
 div[data-testid="stRadio"] div[role="radio"] { display: none; } 
 
-/* --- BOTÓN REPORTE (Amarillo Sólido) --- */
+/* 🟡 BOTÓN DE REPORTE */
 div[data-testid="stButton"] button {
     background-color: #FACC15 !important;
-    color: #111827 !important; /* Texto oscuro */
+    color: #111827 !important;
     border: none !important; font-weight: 800 !important;
-    border-radius: 4px !important; margin-top: 10px;
-    text-transform: uppercase; letter-spacing: 0.5px;
+    border-radius: 4px !important;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    margin-top: 5px;
 }
 div[data-testid="stButton"] button:hover {
     background-color: #FFFFFF !important;
-    box-shadow: 0 0 15px #FACC15;
+    color: #FACC15 !important;
 }

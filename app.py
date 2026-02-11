@@ -4,8 +4,10 @@ import folium
 from folium.plugins import HeatMap
 import pandas as pd
 
+# --- CONFIGURACIÓN ---
 st.set_page_config(page_title="SAPRIA-FO", page_icon="🛡️", layout="wide", initial_sidebar_state="collapsed")
 
+# Cargar CSS
 def local_css(file_name):
     try:
         with open(file_name, encoding='utf-8') as f:
@@ -13,16 +15,17 @@ def local_css(file_name):
     except: pass
 local_css("assets/style.css")
 
+# Importaciones
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_nasa_firms_data
-    from src.navbar import render_navbar
+    from src.navbar import render_navbar # IMPORTAMOS EL NAVBAR
     from src.components import inject_tailwind, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
-    from src.analytics import render_3d_density_map, render_statistics
+    from src.analytics import render_3d_density_map
 except ImportError as e:
-    st.error(f"Error: {e}")
+    st.error(f"Error crítico: {e}")
     st.stop()
 
 inject_tailwind()
@@ -44,7 +47,7 @@ sim_temp = weather['main']['temp'] if weather else 30
 sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 
-# 1. RENDERIZAR BARRA SUPERIOR
+# 1. RENDERIZAR BARRA
 pagina_actual, btn_reporte = render_navbar()
 
 if btn_reporte:
@@ -52,7 +55,7 @@ if btn_reporte:
         generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia)
         st.toast("Reporte Generado")
 
-# 2. CONTENIDO PRINCIPAL
+# 2. CONTENIDO
 st.markdown('<div class="container mx-auto px-4">', unsafe_allow_html=True)
 
 if pagina_actual == "Dashboard":
