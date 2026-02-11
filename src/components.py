@@ -90,7 +90,7 @@ def render_forecast_section(base_temp):
         future_time = now + timedelta(hours=i*3)
         time_str = future_time.strftime("%I:00 %p").lower()
         
-        # Simulación matemática de curva térmica diurna/nocturna
+        # Simulación matemática de curva térmica
         if 6 <= future_time.hour < 15:
             temp = base_temp + (future_time.hour - 6) * 0.5
         elif 15 <= future_time.hour < 20:
@@ -99,13 +99,16 @@ def render_forecast_section(base_temp):
             temp = base_temp - 3 - (i * 0.5)
             
         t_val = round(temp)
-        if t_val > 30: col, icon = "text-alert-red", "local_fire_department"
-        elif t_val > 20: col, icon = "text-secondary", "device_thermostat"
-        else: col, icon = "text-info-blue", "ac_unit"
+        if t_val > 30: col, icon, risk = "text-alert-red", "local_fire_department", "ALTO"
+        elif t_val > 20: col, icon, risk = "text-secondary", "device_thermostat", "MEDIO"
+        else: col, icon, risk = "text-info-blue", "ac_unit", "BAJO"
+        
+        bg_risk = "bg-red-50 border-red-200 text-alert-red" if risk == "ALTO" else ("bg-yellow-50 border-yellow-200 text-secondary" if risk == "MEDIO" else "bg-blue-50 border-blue-200 text-info-blue")
         
         html += f'<div class="flex flex-col items-center"><span class="text-[10px] text-gray-500 font-bold mb-1">{time_str}</span>'
         html += f'<span class="material-icons-outlined {col} text-2xl my-1">{icon}</span>'
-        html += f'<span class="text-sm font-black text-gray-800">{t_val}°C</span></div>'
+        html += f'<span class="text-sm font-black text-gray-800 mb-1">{t_val}°C</span>'
+        html += f'<span class="text-[8px] px-2 py-0.5 rounded border font-bold {bg_risk}">{risk}</span></div>'
         
     html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)

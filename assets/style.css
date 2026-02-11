@@ -7,13 +7,19 @@
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
+/* Evitar scroll horizontal y pintar el fondo general */
+.stApp { 
+    background-color: #F3F4F6 !important; 
+    overflow-x: hidden;
+}
+
 /* Resetear el contenedor principal */
 .block-container { 
     max-width: 100% !important; 
-    padding: 0 !important; 
+    padding: 1.5rem 2rem 0 2rem !important; /* Espacio exacto para centrar el top */
     margin: 0 !important; 
     font-family: 'Montserrat', sans-serif !important;
-    background-color: #F3F4F6;
+    background: transparent !important; /* AQUÍ ARREGLAMOS EL CORTE BLANCO */
 }
 
 /* LA MAGIA: Dibuja la barra Gris Oxford a todo lo ancho de la pantalla */
@@ -21,11 +27,11 @@ section[data-testid="stSidebar"] { display: none !important; }
     content: "";
     position: absolute;
     top: 0; left: 50%;
-    width: 100vw;
-    height: 90px;
-    background-color: #374151; /* Gris Oxford Federal */
-    z-index: 0;
     transform: translateX(-50%);
+    width: 100vw;
+    height: 85px; /* Altura perfecta de la barra */
+    background-color: #374151 !important; /* Gris Oxford */
+    z-index: -1;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
@@ -43,37 +49,44 @@ section[data-testid="stSidebar"] { display: none !important; }
 /* Ajustes para Toggles de Streamlit */
 .stToggle { background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 5px; }
 
-/* --- NAVEGACIÓN PROFESIONAL (Radio Streamlit disfrazado) --- */
+/* --- NAVEGACIÓN PREMIUM (Botones a la derecha) --- */
 div[data-testid="stRadio"] {
-    position: relative;
-    z-index: 10;
-    margin-top: 15px; 
+    display: flex;
+    justify-content: flex-end; /* EMPUJA LOS BOTONES A LA DERECHA */
+    margin-top: 2px !important; /* Centrado vertical con el logo */
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex;
+    display: inline-flex;
     flex-direction: row;
-    justify-content: flex-end; /* Carga los botones a la DERECHA */
-    gap: 20px;
-    padding-right: 30px;
+    gap: 15px;
+    background: transparent;
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] > label {
     background: transparent !important;
-    color: #FACC15 !important; /* LETRAS DORADAS */
-    font-weight: 700 !important;
-    font-size: 15px !important;
-    cursor: pointer;
     border: none !important;
     padding: 5px 15px !important;
     border-radius: 0 !important;
+    border-bottom: 3px solid transparent !important;
+    margin-bottom: 0 !important;
+    cursor: pointer;
+}
+/* EL SECRETO: Forzamos el color a la etiqueta <p> de Streamlit */
+div[data-testid="stRadio"] > div[role="radiogroup"] > label p {
+    color: #9CA3AF !important; /* Gris claro cuando no está seleccionado */
+    font-weight: 600 !important;
+    font-size: 16px !important;
     transition: 0.3s;
 }
-div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
-    color: #FFFFFF !important; /* Se hacen blancas al pasar el mouse */
+div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover p {
+    color: #FACC15 !important; /* Dorado al pasar el mouse */
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"] {
-    color: #FACC15 !important;
     border-bottom: 3px solid #FACC15 !important; /* Subrayado dorado */
 }
-div[data-testid="stRadio"] > div[role="radiogroup"] > label > div:first-child {
-    display: none !important; /* Oculta los circulitos nativos */
+div[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"] p {
+    color: #FACC15 !important; /* DORADO BRILLANTE AL SELECCIONAR */
+    font-weight: 800 !important;
+}
+div[data-testid="stRadio"] div[role="radio"] {
+    display: none !important; /* Oculta los círculos nativos */
 }

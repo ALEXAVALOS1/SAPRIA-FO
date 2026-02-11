@@ -51,22 +51,20 @@ fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 # ==============================================================================
 # ENCABEZADO Y NAVEGACIÓN (BARRA OXFORD GRAY DE EXTREMO A EXTREMO)
 # ==============================================================================
-st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True) # Espacio para el top
-
-col_logo, col_nav = st.columns([1, 2.5])
+col_logo, col_nav = st.columns([1, 2])
 
 # LOGO A LA IZQUIERDA (DORADO)
 with col_logo:
     st.markdown("""
-    <div style="color: #FACC15; font-size: 26px; font-weight: 900; z-index: 10; position: relative; padding-left: 20px;">
+    <div style="color: #FACC15; font-size: 32px; font-weight: 900; line-height: 1.1; margin-top: -8px;">
         SAPRIA-FO
-        <div style="color: #FFFFFF; font-size: 10px; font-weight: 600; letter-spacing: 2px; margin-top: -3px;">
+        <div style="color: #FFFFFF; font-size: 11px; font-weight: 600; letter-spacing: 2px;">
             MONITOREO MUNICIPAL
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-# BOTONES A LA DERECHA (DORADOS)
+# BOTONES CARGADOS A LA DERECHA (DORADOS)
 with col_nav:
     opciones_nav = ["🗺️ Dashboard Táctico", "📊 Base de Datos Histórica", "🚨 Analítica 3D Avanzada"]
     seleccion = st.radio("Menú", opciones_nav, horizontal=True, label_visibility="collapsed")
@@ -75,8 +73,8 @@ if "Dashboard" in seleccion: pagina_actual = "Dashboard"
 elif "Base" in seleccion: pagina_actual = "Base"
 elif "Analítica" in seleccion: pagina_actual = "Analitica"
 
-# Contenedor Principal (Debajo de la barra)
-st.markdown('<div class="container mx-auto px-4 py-8">', unsafe_allow_html=True)
+# Contenedor Principal (Debajo de la barra, con margen para respirar)
+st.markdown('<div class="container mx-auto px-4 py-8 mt-4">', unsafe_allow_html=True)
 
 # ==============================================================================
 # PANTALLA 1: DASHBOARD PRINCIPAL
@@ -127,7 +125,7 @@ if pagina_actual == "Dashboard":
                 route = get_route_osrm(nearest['lat'], nearest['lon'], sim_lat, sim_lon)
                 if route: AntPath(locations=route['path'], color="#374151", weight=5, opacity=0.8, delay=800).add_to(m)
 
-        map_data = st_folium(m, width="100%", height=550)
+        map_data = st_folium(m, width="100%", height=530)
         if map_data['last_clicked'] and st.session_state['sim_coords'] != map_data['last_clicked']:
             st.session_state['sim_coords'] = map_data['last_clicked']; st.rerun()
 
@@ -146,7 +144,7 @@ elif pagina_actual == "Base":
     if not df.empty:
         df_limpio = df[['fecha', 'colonia', 'tipo_incidente', 'causa', 'dano']].copy()
         df_limpio['fecha'] = pd.to_datetime(df_limpio['fecha']).dt.strftime('%Y-%m-%d')
-        # Configuración para que la tabla sea limpia, profesional y SIN índice
+        # Tabla limpia sin índice
         st.dataframe(df_limpio, use_container_width=True, hide_index=True, height=600)
 
 # ==============================================================================
