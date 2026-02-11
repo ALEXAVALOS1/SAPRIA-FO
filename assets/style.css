@@ -1,73 +1,60 @@
-/* --- FUENTES E ICONOS --- */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;900&display=swap');
+/* --- FUENTES --- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
-/* Ocultar elementos nativos */
+/* Ocultar elementos nativos que estorban */
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
-/* CONFIGURACIÓN GENERAL */
+/* Configuración Base */
 .stApp { background-color: #F3F4F6 !important; }
+.block-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; font-family: 'Montserrat', sans-serif !important; }
 
-.block-container { 
-    max-width: 100% !important; 
-    padding: 0 !important; 
-    margin: 0 !important;
-    font-family: 'Montserrat', sans-serif !important;
+/* ⬛ LA BARRA OSCURA DE FONDO (El Telón) */
+.header-container {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 80px;
+    background-color: #1F2937; /* Gris Oxford Muy Oscuro */
+    z-index: 999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    border-bottom: 2px solid #FACC15; /* Línea dorada inferior fina */
 }
 
-/* --- LA BARRA DE COMANDO UNIFICADA --- */
-/* Dibuja un rectángulo oscuro que cubre toda la parte superior */
-.block-container::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 90px; 
-    background-color: #374151; /* GRIS OXFORD */
-    z-index: 0;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
+/* Espacio para que el contenido no quede debajo de la barra fija */
+.content-spacer { height: 100px; }
 
-/* --- ESTILO DEL MENÚ (RADIO BUTTONS) --- */
-div[data-testid="stRadio"] {
-    background: transparent !important;
-    margin-top: 8px; 
-}
+/* 🔘 NAVEGACIÓN (Transformando st.radio en Text Links) */
+div[data-testid="stRadio"] { margin-top: 18px; } /* Centrado vertical */
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex; 
-    gap: 15px;
-    background: transparent;
+    display: flex; gap: 30px; justify-content: center;
 }
 div[data-testid="stRadio"] label {
-    color: #D1D5DB !important; /* Gris claro */
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    cursor: pointer;
-    transition: 0.3s;
-    border-bottom: 3px solid transparent;
-    padding: 5px 10px !important;
+    color: #9CA3AF !important; /* Gris suave */
+    font-weight: 600 !important; font-size: 14px !important;
+    cursor: pointer; transition: 0.3s;
+    background: transparent !important; border: none !important; padding: 0 !important;
 }
-div[data-testid="stRadio"] label:hover {
-    color: #FACC15 !important;
-}
+div[data-testid="stRadio"] label:hover { color: #FFFFFF !important; }
 div[data-testid="stRadio"] label[data-checked="true"] {
-    color: #FACC15 !important; /* DORADO */
-    border-bottom: 3px solid #FACC15 !important;
+    color: #FACC15 !important; /* DORADO ACTIVO */
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
     font-weight: 800 !important;
 }
-div[data-testid="stRadio"] div[role="radio"] { display: none; } 
+div[data-testid="stRadio"] div[role="radio"] { display: none; } /* Ocultar círculos */
 
-/* --- BOTÓN DE REPORTE --- */
+/* 🟡 BOTÓN DE REPORTE */
 div[data-testid="stButton"] button {
     background-color: #FACC15 !important;
     color: #111827 !important;
-    border: none !important;
-    font-weight: 800 !important;
-    font-size: 11px !important;
-    border-radius: 4px !important;
-    text-transform: uppercase;
+    border: none !important; font-weight: 800 !important; font-size: 12px !important;
+    border-radius: 4px !important; margin-top: 15px; /* Centrado vertical */
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
 }
 div[data-testid="stButton"] button:hover {
-    background-color: #EAB308 !important;
-    box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+    background-color: #FFFFFF !important; color: #111827 !important;
 }
+
+/* 📊 METRICAS Y TARJETAS */
+.bg-card-light { background-color: #FFFFFF; }
+.text-alert-red { color: #EF4444; } .bg-alert-red { background-color: #EF4444; }
+.text-secondary { color: #FACC15; } .bg-secondary { background-color: #FACC15; }

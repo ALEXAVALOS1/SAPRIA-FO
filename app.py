@@ -3,11 +3,11 @@ from streamlit_folium import st_folium
 import folium
 from folium.plugins import HeatMap, AntPath
 import pandas as pd
-from datetime import datetime
 
-# --- 1. CONFIGURACIÓN ---
+# --- CONFIGURACIÓN ---
 st.set_page_config(page_title="SAPRIA-FO", page_icon="🛡️", layout="wide", initial_sidebar_state="collapsed")
 
+# Cargar CSS
 def local_css(file_name):
     try:
         with open(file_name, encoding='utf-8') as f:
@@ -15,15 +15,19 @@ def local_css(file_name):
     except: pass
 local_css("assets/style.css")
 
+# Importaciones Seguras
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_nasa_firms_data, find_nearest_station, get_route_osrm
-    from src.components import inject_tailwind, render_logo_html, render_links_html, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
+    # IMPORTAMOS EL NUEVO NAVBAR
+    from src.navbar import render_navbar 
+    # IMPORTAMOS LOS COMPONENTES RESTANTES
+    from src.components import inject_tailwind, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
     from src.analytics import render_3d_density_map, render_statistics 
 except ImportError as e:
-    st.error(f"Error importando módulos: {e}")
+    st.error(f"Error crítico de importación: {e}")
     st.stop()
 
 inject_tailwind()
@@ -47,47 +51,30 @@ sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 
 # ==============================================================================
-# 🛡️ BARRA DE COMANDO UNIFICADA
+# 🛡️ RENDERIZADO DE LA BARRA SUPERIOR (Desde el nuevo archivo)
 # ==============================================================================
-st.markdown('<div style="padding-top: 10px;"></div>', unsafe_allow_html=True)
+pagina_actual, btn_reporte = render_navbar()
 
-# 3 COLUMNAS: LOGO | MENÚ | ACCIONES
-c_logo, c_menu, c_actions = st.columns([2, 5, 2], gap="small")
-
-with c_logo:
-    render_logo_html() # LOGO SAPRIA
-
-with c_menu:
-    opciones_nav = ["Dashboard Táctico", "Base Histórica", "Analítica 3D"]
-    seleccion = st.radio("Nav", opciones_nav, horizontal=True, label_visibility="collapsed")
-
-with c_actions:
-    c_sub1, c_sub2 = st.columns([1, 1])
-    with c_sub1:
-        st.markdown('<div style="height: 2px;"></div>', unsafe_allow_html=True)
-        if st.button("📄 REPORTE", use_container_width=True):
-             with st.spinner("Generando..."):
-                generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia)
-                st.toast("Reporte generado")
-    with c_sub2:
-        render_links_html()
-
-if "Dashboard" in seleccion: pagina_actual = "Dashboard"
-elif "Base" in seleccion: pagina_actual = "Base"
-elif "Analítica" in seleccion: pagina_actual = "Analitica"
+# Lógica del botón de reporte global
+if btn_reporte:
+    with st.spinner("Generando PDF Táctico..."):
+        generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia)
+        st.toast("✅ Reporte Generado Exitosamente")
 
 # ==============================================================================
-# CONTENIDO
+# CONTENIDO DE LA PÁGINA
 # ==============================================================================
-st.markdown('<div class="container mx-auto px-4 py-8 mt-6">', unsafe_allow_html=True)
+st.markdown('<div class="container mx-auto px-4">', unsafe_allow_html=True)
 
 if pagina_actual == "Dashboard":
     col_izq, col_mapa, col_der = st.columns([2.5, 6.5, 3], gap="medium")
+
     with col_izq:
         render_left_alert_card(len(df_nasa))
         render_factors_card(weather, fwi_cat)
         show_heatmap = st.toggle("🔥 Historial", value=True)
         show_ai = st.toggle("🧠 Zonas IA", value=True)
+
     with col_mapa:
         m = folium.Map(location=[JUAREZ_LAT, JUAREZ_LON], zoom_start=11, tiles="CartoDB positron")
         if show_heatmap and not df.empty: HeatMap([[r['lat'], r['lon']] for _, r in df.iterrows()], radius=15, gradient={0.4:'#FACC15', 1:'#EF4444'}).add_to(m)
@@ -96,6 +83,7 @@ if pagina_actual == "Dashboard":
                 folium.Circle(location=[ep['lat'], ep['lon']], radius=1500, color="#EF4444", weight=1, fill=True, fill_opacity=0.1).add_to(m)
         st_folium(m, width="100%", height=500)
         render_forecast_section(sim_temp)
+
     with col_der:
         render_right_metrics(len(df))
         render_log_card(epicentros_ia)
