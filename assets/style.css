@@ -1,14 +1,16 @@
 /* --- FUENTES E ICONOS --- */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 /* Ocultar elementos nativos */
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
 /* CONFIGURACIÓN GENERAL */
-.stApp { background-color: #F3F4F6 !important; }
+.stApp { 
+    background-color: #F3F4F6 !important; /* Fondo gris claro para el resto de la app */
+}
+
 .block-container { 
     max-width: 100% !important; 
     padding: 0 !important; 
@@ -16,64 +18,68 @@ section[data-testid="stSidebar"] { display: none !important; }
     font-family: 'Montserrat', sans-serif !important;
 }
 
-/* --- FONDO DE LA CABECERA (La Gran Barra Oscura) --- */
-.header-background {
+/* --- LA SUPER BARRA DE COMANDO (FONDO OSCURO UNIFICADO) --- */
+/* Esto dibuja un rectángulo oscuro detrás de tus columnas superiores */
+.block-container::before {
+    content: "";
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 130px; /* Altura para las 2 filas */
-    background-color: #374151; /* Gris Oxford */
+    top: 0; 
+    left: 0; 
+    right: 0;
+    height: 100px; /* Altura suficiente para contener Logo y Menú */
+    background-color: #374151; /* GRIS OXFORD */
     z-index: 0;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
 
-/* --- ESTILO DEL MENÚ DE NAVEGACIÓN (Fila Inferior Izquierda) --- */
+/* --- ESTILO DEL MENÚ (RADIO BUTTONS) PARA FONDO OSCURO --- */
 div[data-testid="stRadio"] {
     background: transparent !important;
-    margin-top: 10px;
+    margin-top: 5px; /* Alineación fina */
 }
+
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex; gap: 25px;
-    border-bottom: 1px solid rgba(255,255,255,0.1); /* Línea sutil divisora */
-    padding-bottom: 5px;
+    display: flex; 
+    gap: 15px;
+    justify-content: center; /* Centrado */
 }
+
 div[data-testid="stRadio"] label {
-    color: #9CA3AF !important; /* Gris claro inactivo */
+    color: #E5E7EB !important; /* BLANCO HUMO (Para que se vea en lo oscuro) */
     font-weight: 600 !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
     cursor: pointer;
     transition: 0.3s;
     border-bottom: 3px solid transparent;
-}
-div[data-testid="stRadio"] label:hover {
-    color: #FFFFFF !important;
-}
-div[data-testid="stRadio"] label[data-checked="true"] {
-    color: #FACC15 !important; /* AMARILLO ACTIVO */
-    border-bottom: 3px solid #FACC15 !important; /* SUBRAYADO AMARILLO */
-}
-div[data-testid="stRadio"] div[role="radio"] { display: none; } /* Ocultar círculos */
-
-/* --- BOTÓN AMARILLO "GENERAR REPORTE" --- */
-div[data-testid="stButton"] button {
-    background-color: #FACC15 !important;
-    color: #111827 !important;
-    border: none !important;
-    font-weight: 800 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 12px !important;
-    padding: 0.5rem 1rem !important;
+    background: rgba(255,255,255,0.05) !important; /* Fondo sutil botón */
+    padding: 5px 15px !important;
     border-radius: 4px !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    transition: transform 0.1s;
+}
+
+div[data-testid="stRadio"] label:hover {
+    color: #FACC15 !important; /* Dorado al pasar el mouse */
+    background: rgba(255,255,255,0.1) !important;
+}
+
+div[data-testid="stRadio"] label[data-checked="true"] {
+    color: #111827 !important; /* Letra negra */
+    background-color: #FACC15 !important; /* FONDO DORADO ACTIVO */
+    border-bottom: none !important;
+    font-weight: 800 !important;
+}
+
+div[data-testid="stRadio"] div[role="radio"] { display: none; } /* Adiós círculos */
+
+/* --- BOTÓN DE REPORTE --- */
+div[data-testid="stButton"] button {
+    background-color: transparent !important;
+    color: #FACC15 !important;
+    border: 1px solid #FACC15 !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    border-radius: 4px !important;
 }
 div[data-testid="stButton"] button:hover {
-    background-color: #EAB308 !important; /* Amarillo un poco más oscuro */
-    transform: scale(1.02);
+    background-color: #FACC15 !important;
+    color: #111827 !important;
 }
-div[data-testid="stButton"] button:active { transform: scale(0.95); }
-
-/* Colores utilitarios para HTML */
-.text-gold { color: #FACC15; }
-.bg-dark { background-color: #374151; }
-.border-b-dark { border-bottom: 1px solid rgba(255,255,255,0.1); }
