@@ -6,35 +6,31 @@ def inject_tailwind():
 
 def render_left_alert_card(nasa_anomalies):
     if nasa_anomalies > 0:
-        html = f"""<div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-red-500 mb-4"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-red-500 text-sm uppercase" style="margin:0;">Alerta Crítica</h3><span class="animate-pulse h-2 w-2 rounded-full bg-red-500"></span></div><p class="text-xs text-gray-600 mb-2 font-medium">NASA VIIRS detectó {nasa_anomalies} anomalías.</p></div>"""
-        st.markdown(html, unsafe_allow_html=True)
+        st.markdown(f'<div style="background:white;padding:1rem;border-radius:0.75rem;border-left:4px solid #EF4444;margin-bottom:1rem;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;"><h3 style="color:#EF4444;font-weight:700;font-size:0.875rem;text-transform:uppercase;margin:0;">ALERTA CRÍTICA</h3><span style="height:0.5rem;width:0.5rem;background-color:#EF4444;border-radius:9999px;"></span></div><p style="color:#4B5563;font-size:0.75rem;font-weight:500;margin:0;">NASA VIIRS detectó {nasa_anomalies} anomalías.</p></div>', unsafe_allow_html=True)
 
 def render_factors_card(weather, fwi_cat):
-    temp = weather['main']['temp'] if weather else "--"
-    html = f"""<div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 mb-4"><h2 class="font-bold text-gray-800 flex items-center gap-2 text-xs uppercase tracking-wider mb-4 m-0"><span class="material-icons-outlined text-gray-700 text-sm">analytics</span> Clima en vivo</h2><div class="space-y-3"><div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"><span class="material-icons-outlined text-gray-400">device_thermostat</span><div class="flex flex-col"><span class="text-xs font-bold text-gray-700">Temp</span><span class="text-[10px] text-gray-500">{temp}°C</span></div></div><div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border-l-2 border-gray-700"><span class="material-icons-outlined text-gray-400">speed</span><div class="flex flex-col"><span class="text-xs font-bold text-gray-700">FWI</span><span class="text-[10px] font-bold text-red-500">{fwi_cat}</span></div></div></div></div>"""
-    st.markdown(html, unsafe_allow_html=True)
+    t = weather['main']['temp'] if weather else "--"
+    h = weather['main']['humidity'] if weather else "--"
+    st.markdown(f'<div style="background:white;padding:1rem;border-radius:0.75rem;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);border:1px solid #F3F4F6;margin-bottom:1rem;"><h2 style="color:#1F2937;font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><span class="material-icons-outlined" style="font-size:1rem;color:#374151;">analytics</span>CLIMA EN VIVO</h2><div style="display:flex;flex-direction:column;gap:0.75rem;"><div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem;background-color:#F9FAFB;border-radius:0.5rem;"><span class="material-icons-outlined" style="color:#9CA3AF;">device_thermostat</span><div style="display:flex;flex-direction:column;"><span style="font-weight:700;font-size:0.75rem;color:#374151;">Temp</span><span style="font-size:0.65rem;color:#6B7280;">{t}°C</span></div></div><div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem;background-color:#F9FAFB;border-radius:0.5rem;border-left:2px solid #374151;"><span class="material-icons-outlined" style="color:#9CA3AF;">speed</span><div style="display:flex;flex-direction:column;"><span style="font-weight:700;font-size:0.75rem;color:#374151;">FWI</span><span style="font-size:0.65rem;font-weight:700;color:#EF4444;">{fwi_cat}</span></div></div></div></div>', unsafe_allow_html=True)
 
-def render_right_metrics(total_incendios):
-    html = f"""<div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-4"><h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Métricas</h2><div class="grid grid-cols-2 gap-4"><div class="bg-red-50 p-3 rounded-lg border border-red-100"><div class="text-3xl font-bold text-red-500">{total_incendios}</div><div class="text-[10px] font-bold text-gray-600 mt-1 uppercase">Focos</div></div><div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100"><div class="text-3xl font-bold text-yellow-600">84%</div><div class="text-[10px] font-bold text-gray-600 mt-1 uppercase">Riesgo</div></div></div></div>"""
-    st.markdown(html, unsafe_allow_html=True)
+def render_right_metrics(total):
+    st.markdown(f'<div style="background:white;padding:1.25rem;border-radius:0.75rem;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);border:1px solid #F3F4F6;margin-bottom:1rem;"><h2 style="color:#6B7280;font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;">MÉTRICAS</h2><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;"><div style="background-color:#FEF2F2;padding:0.75rem;border-radius:0.5rem;border:1px solid #FEE2E2;"><div style="font-size:1.875rem;font-weight:700;color:#EF4444;">{total}</div><div style="font-size:0.65rem;font-weight:700;color:#4B5563;text-transform:uppercase;margin-top:0.25rem;">FOCOS</div></div><div style="background-color:#FEFCE8;padding:0.75rem;border-radius:0.5rem;border:1px solid #FEF9C3;"><div style="font-size:1.875rem;font-weight:700;color:#CA8A04;">84%</div><div style="font-size:0.65rem;font-weight:700;color:#4B5563;text-transform:uppercase;margin-top:0.25rem;">RIESGO</div></div></div></div>', unsafe_allow_html=True)
 
 def render_log_card(epicentros_ia):
-    html = """<div class="bg-white rounded-xl shadow-sm border border-gray-100 flex-grow flex flex-col overflow-hidden mb-4"><div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center"><h2 class="text-xs font-bold text-gray-800 uppercase tracking-wider m-0">Zonas IA</h2></div><div class="p-4 space-y-3">"""
+    content = ""
     if epicentros_ia:
         for ep in epicentros_ia[:3]:
-            html += f"""<div class="p-3 rounded-lg border border-gray-100 bg-white"><div class="flex justify-between items-start mb-2"><h4 class="text-xs font-bold text-gray-800 m-0">Zona {ep["id"]}</h4><span class="text-[9px] bg-red-500 text-white px-2 py-0.5 rounded font-black shadow-sm">{ep["peligro"]}</span></div></div>"""
-    html += "</div></div>"
-    st.markdown(html, unsafe_allow_html=True)
+            content += f'<div style="padding:0.75rem;border-radius:0.5rem;border:1px solid #F3F4F6;background-color:white;"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;"><h4 style="font-size:0.75rem;font-weight:700;color:#1F2937;margin:0;">ZONA {ep["id"]}</h4><span style="font-size:0.6rem;background-color:#EF4444;color:white;padding:0.125rem 0.5rem;border-radius:0.25rem;font-weight:900;">{ep["peligro"]}</span></div></div>'
+    st.markdown(f'<div style="background:white;border-radius:0.75rem;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);border:1px solid #F3F4F6;margin-bottom:1rem;overflow:hidden;"><div style="padding:1rem;border-bottom:1px solid #F3F4F6;background-color:#F9FAFB;"><h2 style="font-size:0.75rem;font-weight:700;color:#1F2937;text-transform:uppercase;letter-spacing:0.05em;margin:0;">ZONAS IA</h2></div><div style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem;">{content}</div></div>', unsafe_allow_html=True)
 
 def render_forecast_section(base_temp):
+    items = ""
     now = datetime.now()
-    html = """<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mt-4"><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex justify-between"><span>Pronóstico</span><span>Live</span></div><div class="flex justify-between items-center text-center">"""
     for i in range(5):
-        f_time = now + timedelta(hours=i*3)
+        ft = now + timedelta(hours=i*3)
         val = round(base_temp - (i*0.5))
-        html += f"""<div class="flex flex-col items-center"><span class="text-[10px] text-gray-500 font-bold mb-1">{f_time.strftime("%I %p")}</span><span class="text-sm font-black text-gray-800">{val}°</span></div>"""
-    html += "</div></div>"
-    st.markdown(html, unsafe_allow_html=True)
+        items += f'<div style="display:flex;flex-direction:column;align-items:center;"><span style="font-size:0.65rem;color:#6B7280;font-weight:700;margin-bottom:0.25rem;">{ft.strftime("%I %p")}</span><span style="font-size:0.875rem;font-weight:900;color:#1F2937;">{val}°</span></div>'
+    st.markdown(f'<div style="background:white;border-radius:0.75rem;box-shadow:0 1px 2px 0 rgba(0,0,0,0.05);border:1px solid #F3F4F6;padding:1.25rem;margin-top:1rem;"><div style="font-size:0.65rem;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;display:flex;justify-content:space-between;"><span>PRONÓSTICO</span><span>LIVE</span></div><div style="display:flex;justify-content:space-between;align-items:center;text-align:center;">{items}</div></div>', unsafe_allow_html=True)
 
 def render_footer():
-    st.markdown("""<footer class="bg-gray-800 text-white pt-10 pb-4 mt-8"><p class="text-center text-[10px] opacity-50">© 2026 SAPRIA-FO</p></footer>""", unsafe_allow_html=True)
+    st.markdown('<footer style="background-color:#1F2937;color:white;padding-top:2.5rem;padding-bottom:1rem;margin-top:2rem;"><p style="text-align:center;font-size:0.65rem;opacity:0.5;">© 2026 SAPRIA-FO</p></footer>', unsafe_allow_html=True)
