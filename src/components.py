@@ -4,20 +4,24 @@ from datetime import datetime, timedelta
 def inject_tailwind():
     st.markdown('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">', unsafe_allow_html=True)
 
+# TARJETA ALERTA (IZQUIERDA)
 def render_left_alert_card(nasa_anomalies):
     if nasa_anomalies > 0:
         html = f'<div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-red-500 mb-4"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-red-500 text-sm uppercase" style="margin:0;">Alerta Crítica</h3><span class="animate-pulse h-2 w-2 rounded-full bg-red-500"></span></div><p class="text-xs text-gray-600 mb-2 font-medium">NASA VIIRS detectó {nasa_anomalies} anomalías.</p></div>'
         st.markdown(html, unsafe_allow_html=True)
 
+# TARJETA CLIMA
 def render_factors_card(weather, fwi_cat):
     temp = weather['main']['temp'] if weather else "--"
     html = f'<div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 mb-4"><h2 class="font-bold text-gray-800 flex items-center gap-2 text-xs uppercase tracking-wider mb-4 m-0"><span class="material-icons-outlined text-gray-700 text-sm">analytics</span> Clima en vivo</h2><div class="space-y-3"><div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"><span class="material-icons-outlined text-gray-400">device_thermostat</span><div class="flex flex-col"><span class="text-xs font-bold text-gray-700">Temp</span><span class="text-[10px] text-gray-500">{temp}°C</span></div></div><div class="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border-l-2 border-gray-700"><span class="material-icons-outlined text-gray-400">speed</span><div class="flex flex-col"><span class="text-xs font-bold text-gray-700">FWI</span><span class="text-[10px] font-bold text-red-500">{fwi_cat}</span></div></div></div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
+# MÉTRICAS (DERECHA)
 def render_right_metrics(total):
     html = f'<div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-4"><h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Métricas</h2><div class="grid grid-cols-2 gap-4"><div class="bg-red-50 p-3 rounded-lg border border-red-100"><div class="text-3xl font-bold text-red-500">{total}</div><div class="text-[10px] font-bold text-gray-600 mt-1 uppercase">Focos</div></div><div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100"><div class="text-3xl font-bold text-yellow-600">84%</div><div class="text-[10px] font-bold text-gray-600 mt-1 uppercase">Riesgo</div></div></div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
+# ZONAS IA
 def render_log_card(epicentros_ia):
     html = '<div class="bg-white rounded-xl shadow-sm border border-gray-100 flex-grow flex flex-col overflow-hidden mb-4"><div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center"><h2 class="text-xs font-bold text-gray-800 uppercase tracking-wider m-0">Zonas IA</h2></div><div class="p-4 space-y-3">'
     if epicentros_ia:
@@ -26,6 +30,7 @@ def render_log_card(epicentros_ia):
     html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
+# PRONÓSTICO
 def render_forecast_section(base_temp):
     now = datetime.now()
     html = '<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mt-4"><div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex justify-between"><span>Pronóstico</span><span>Live</span></div><div class="flex justify-between items-center text-center">'
