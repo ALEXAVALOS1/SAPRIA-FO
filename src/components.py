@@ -12,7 +12,8 @@ def render_top_header_html():
             <div style="background-color: white; width: 35px; height: 35px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
                  <span class="material-icons-outlined" style="color: #374151; font-size: 24px;">shield</span>
             </div>
-            <div style="height: 30px; width: 1px; background-color: rgba(255,255,255,0.2);"></div> <div style="line-height: 1.1;">
+            <div style="height: 30px; width: 1px; background-color: rgba(255,255,255,0.2);"></div>
+            <div style="line-height: 1.1;">
                 <h1 style="color: #FACC15; font-weight: 800; font-size: 20px; margin: 0; letter-spacing: 0.5px;">SINAPRIA-FO</h1>
                 <p style="color: white; font-size: 9px; font-weight: 600; margin: 0; letter-spacing: 1.5px; opacity: 0.8;">MONITOREO MUNICIPAL JUÁREZ</p>
             </div>
@@ -26,7 +27,6 @@ def render_top_header_html():
     </div>
     """, unsafe_allow_html=True)
 
-# --- TARJETAS DE DATOS (Las mismas de antes, intactas) ---
 def render_left_alert_card(nasa_anomalies):
     if nasa_anomalies > 0:
         st.markdown(f"""
@@ -101,7 +101,7 @@ def render_forecast_section(base_temp):
     html += '<div class="flex justify-between items-center text-center">'
     for i in range(5):
         future_time = now + timedelta(hours=i*3)
-        t_val = round(base_temp - (i*0.5)) # Simulación simple
+        t_val = round(base_temp - (i*0.5)) 
         html += f'<div class="flex flex-col items-center"><span class="text-[10px] text-gray-500 font-bold mb-1">{future_time.strftime("%I %p")}</span>'
         html += f'<span class="text-sm font-black text-gray-800">{t_val}°</span></div>'
     html += '</div></div>'
