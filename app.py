@@ -47,27 +47,24 @@ sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 
 # ==============================================================================
-# 🛡️ LA SUPER BARRA DE COMANDO (TODO ALINEADO)
+# 🛡️ BARRA DE COMANDO UNIFICADA
 # ==============================================================================
-# Creamos espacio superior y el contenedor oscuro ya está puesto por CSS
 st.markdown('<div style="padding-top: 10px;"></div>', unsafe_allow_html=True)
 
 # 3 COLUMNAS: LOGO | MENÚ | ACCIONES
 c_logo, c_menu, c_actions = st.columns([2, 5, 2], gap="small")
 
 with c_logo:
-    render_logo_html() # Pinta SAPRIA-FO
+    render_logo_html() # LOGO SAPRIA
 
 with c_menu:
-    # El menú se verá con letras blancas y botones dorados
     opciones_nav = ["Dashboard Táctico", "Base Histórica", "Analítica 3D"]
     seleccion = st.radio("Nav", opciones_nav, horizontal=True, label_visibility="collapsed")
 
 with c_actions:
-    # Ponemos el botón de reporte y links
     c_sub1, c_sub2 = st.columns([1, 1])
     with c_sub1:
-        st.markdown('<div style="height: 2px;"></div>', unsafe_allow_html=True) # Ajuste visual
+        st.markdown('<div style="height: 2px;"></div>', unsafe_allow_html=True)
         if st.button("📄 REPORTE", use_container_width=True):
              with st.spinner("Generando..."):
                 generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia)
@@ -75,25 +72,22 @@ with c_actions:
     with c_sub2:
         render_links_html()
 
-# Lógica de Navegación
 if "Dashboard" in seleccion: pagina_actual = "Dashboard"
 elif "Base" in seleccion: pagina_actual = "Base"
 elif "Analítica" in seleccion: pagina_actual = "Analitica"
 
 # ==============================================================================
-# CONTENIDO PRINCIPAL
+# CONTENIDO
 # ==============================================================================
 st.markdown('<div class="container mx-auto px-4 py-8 mt-6">', unsafe_allow_html=True)
 
 if pagina_actual == "Dashboard":
     col_izq, col_mapa, col_der = st.columns([2.5, 6.5, 3], gap="medium")
-
     with col_izq:
         render_left_alert_card(len(df_nasa))
         render_factors_card(weather, fwi_cat)
         show_heatmap = st.toggle("🔥 Historial", value=True)
         show_ai = st.toggle("🧠 Zonas IA", value=True)
-
     with col_mapa:
         m = folium.Map(location=[JUAREZ_LAT, JUAREZ_LON], zoom_start=11, tiles="CartoDB positron")
         if show_heatmap and not df.empty: HeatMap([[r['lat'], r['lon']] for _, r in df.iterrows()], radius=15, gradient={0.4:'#FACC15', 1:'#EF4444'}).add_to(m)
@@ -102,7 +96,6 @@ if pagina_actual == "Dashboard":
                 folium.Circle(location=[ep['lat'], ep['lon']], radius=1500, color="#EF4444", weight=1, fill=True, fill_opacity=0.1).add_to(m)
         st_folium(m, width="100%", height=500)
         render_forecast_section(sim_temp)
-
     with col_der:
         render_right_metrics(len(df))
         render_log_card(epicentros_ia)
