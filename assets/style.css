@@ -1,4 +1,4 @@
-/* --- INYECCIÓN DE TAILWIND Y FUENTES --- */
+/* --- INYECCIÓN DE FUENTES --- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
@@ -7,7 +7,7 @@
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; } /* APAGAMOS EL SIDEBAR NATIVO */
 
-/* Resetear el contenedor principal para que use toda la pantalla */
+/* Resetear el contenedor principal */
 .block-container { 
     max-width: 100% !important; 
     padding: 0 !important; 
@@ -16,7 +16,7 @@ section[data-testid="stSidebar"] { display: none !important; } /* APAGAMOS EL SI
     background-color: #F3F4F6;
 }
 
-/* --- TUS COLORES PERSONALIZADOS (Mapeo manual para Tailwind) --- */
+/* --- COLORES OXFORD GRAY / TAILWIND --- */
 .bg-primary { background-color: #374151 !important; }
 .text-primary { color: #374151 !important; }
 .bg-secondary { background-color: #FACC15 !important; }
@@ -27,5 +27,35 @@ section[data-testid="stSidebar"] { display: none !important; } /* APAGAMOS EL SI
 .bg-alert-red { background-color: #EF4444 !important; }
 .text-success-green { color: #22C55E !important; }
 
-/* Ajustes para los Toggles nativos de Streamlit para que luzcan bien en tu diseño */
+/* Ajustes para Toggles de Streamlit */
 .stToggle { background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 5px; }
+
+/* --- NAVEGACIÓN FUNCIONAL (Radio Streamlit disfrazado) --- */
+[data-testid="stRadio"] {
+    background-color: #374151; /* Fondo Oxford Gray */
+    padding: 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+[data-testid="stRadio"] > div[role="radiogroup"] {
+    display: flex; flex-direction: row; gap: 30px;
+    padding: 0 2rem; justify-content: center;
+}
+[data-testid="stRadio"] > div[role="radiogroup"] > label {
+    background: transparent !important;
+    color: #F3F4F6 !important; /* Letras Blancas */
+    padding: 15px 5px !important;
+    border-radius: 0 !important;
+    border-bottom: 3px solid transparent !important;
+    font-weight: 700 !important; /* Letra bold */
+    font-size: 15px !important; 
+    cursor: pointer; transition: 0.2s;
+}
+[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
+    color: #FACC15 !important; /* Amarillo al pasar el mouse */
+}
+[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"] {
+    color: #FACC15 !important; /* Amarillo al seleccionar */
+    border-bottom: 3px solid #FACC15 !important;
+}
+[data-testid="stRadio"] div[role="radio"] { display: none; } /* Oculta el circulito nativo */
