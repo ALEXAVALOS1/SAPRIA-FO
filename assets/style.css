@@ -1,34 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
-/* Ocultar elementos nativos */
+/* ELIMINAR INTERFAZ NATIVA */
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
-/* Fondo */
+/* FONDO GENERAL */
 .stApp { background-color: #F3F4F6 !important; }
-.block-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
 
-/* PERSONALIZACIÓN DE ST.RADIO (DORADO) */
+/* QUITAR ESPACIO BLANCO SUPERIOR (CRÍTICO) */
+.block-container { 
+    max-width: 100% !important; 
+    padding-top: 0 !important; 
+    padding-left: 1rem !important; 
+    padding-right: 1rem !important; 
+    margin: 0 !important; 
+}
+
+/* BARRA SUPERIOR FIJA */
+.fixed-header {
+    position: fixed; top: 0; left: 0; right: 0; height: 80px;
+    background-color: #374151; z-index: 999;
+    border-bottom: 3px solid #FACC15;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* ESTILO DEL MENÚ (RADIO) */
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex; gap: 20px; justify-content: center;
+    background: transparent !important; display: flex; gap: 15px;
 }
 div[data-testid="stRadio"] label {
-    color: #9CA3AF !important; /* Gris */
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    background: transparent !important;
-    border: none !important;
+    color: #9CA3AF !important; font-family: 'Montserrat'; font-weight: 600; font-size: 14px;
+    background: transparent !important; border: none !important;
 }
 div[data-testid="stRadio"] label:hover { color: #FACC15 !important; }
 div[data-testid="stRadio"] label[data-checked="true"] {
-    color: #FACC15 !important; /* DORADO */
-    border-bottom: 2px solid #FACC15 !important;
+    color: #FACC15 !important; font-weight: 800; border-bottom: 2px solid #FACC15 !important;
 }
-div[data-testid="stRadio"] div[role="radio"] { display: none; } 
+div[data-testid="stRadio"] div[role="radio"] { display: none; }
 
-/* PERSONALIZACIÓN DE BOTÓN */
+/* ESTILO DEL BOTÓN */
 div[data-testid="stButton"] button {
-    background-color: #FACC15 !important;
-    color: #111827 !important;
-    border: none !important; font-weight: 800 !important;
+    background-color: #FACC15 !important; color: #111827 !important;
+    border: none !important; font-weight: 800; margin-top: 5px;
 }
