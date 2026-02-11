@@ -100,6 +100,26 @@ def render_log_card(epicentros_ia):
     html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
+def render_forecast_section():
+    items = [
+        ("06:00 p.m.", "device_thermostat", "19°", "text-success-green"), 
+        ("09:00 p.m.", "device_thermostat", "14°", "text-success-green"),
+        ("12:00 a.m.", "ac_unit", "9°", "text-info-blue"), 
+        ("03:00 a.m.", "ac_unit", "9°", "text-info-blue"),
+        ("06:00 a.m.", "device_thermostat", "9°", "text-success-green"), 
+        ("09:00 a.m.", "light_mode", "14°", "text-secondary")
+    ]
+    html = '<div class="bg-card-light rounded-xl shadow-sm border border-gray-100 p-5 mt-4">'
+    html += '<div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex justify-between"><span><span class="material-icons-outlined text-[12px] mr-1">schedule</span> Pronóstico de Riesgo (12 hrs)</span><span>OpenWeather</span></div>'
+    html += '<div class="flex justify-between items-center text-center">'
+    for time, icon, temp, col in items:
+        html += f'<div class="flex flex-col items-center"><span class="text-[10px] text-gray-500 font-bold mb-1">{time}</span>'
+        html += f'<span class="material-icons-outlined {col} text-2xl my-1">{icon}</span>'
+        html += f'<span class="text-sm font-black text-gray-800">{temp}</span>'
+        html += '<span class="text-[8px] bg-green-50 text-success-green px-2 py-0.5 rounded border border-green-200 font-bold mt-1">BAJO</span></div>'
+    html += '</div></div>'
+    st.markdown(html, unsafe_allow_html=True)
+
 def render_footer():
     st.markdown("""
 <footer class="bg-primary text-white pt-10 pb-4 mt-8">

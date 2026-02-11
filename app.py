@@ -17,11 +17,10 @@ local_css("assets/style.css")
 
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_nasa_firms_data, find_nearest_station, get_route_osrm
-    from src.components import inject_tailwind, render_header, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_footer
+    from src.components import inject_tailwind, render_header, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
-    # Recuperamos la analítica 3D
     from src.analytics import render_3d_density_map, render_statistics 
 except ImportError as e:
     st.error(f"Error importando módulos: {e}")
@@ -54,11 +53,10 @@ fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 # ==============================================================================
 render_header()
 
-# LA NUEVA BARRA DE NAVEGACIÓN FUNCIONAL
+# LA NUEVA BARRA DE NAVEGACIÓN FUNCIONAL (Pestañas Flotantes)
 opciones_nav = ["🗺️ Dashboard Táctico", "📊 Base de Datos Histórica", "🚨 Analítica 3D Avanzada"]
 seleccion = st.radio("Menú", opciones_nav, horizontal=True, label_visibility="collapsed")
 
-# Lógica de Enrutamiento
 if "Dashboard" in seleccion:
     pagina_actual = "Dashboard"
 elif "Base" in seleccion:
@@ -66,7 +64,6 @@ elif "Base" in seleccion:
 elif "Analítica" in seleccion:
     pagina_actual = "Analitica"
 
-# Contenedor Principal con márgenes
 st.markdown('<div class="container mx-auto px-4 py-6">', unsafe_allow_html=True)
 
 # ==============================================================================
@@ -118,9 +115,12 @@ if pagina_actual == "Dashboard":
                 route = get_route_osrm(nearest['lat'], nearest['lon'], sim_lat, sim_lon)
                 if route: AntPath(locations=route['path'], color="#374151", weight=5, opacity=0.8, delay=800).add_to(m)
 
-        map_data = st_folium(m, width="100%", height=600)
+        map_data = st_folium(m, width="100%", height=550)
         if map_data['last_clicked'] and st.session_state['sim_coords'] != map_data['last_clicked']:
             st.session_state['sim_coords'] = map_data['last_clicked']; st.rerun()
+
+        # AQUÍ RENDERIZAMOS EL PRONÓSTICO
+        render_forecast_section()
 
     with col_der:
         render_right_metrics(len(df) if not df.empty else 0)
@@ -132,7 +132,10 @@ if pagina_actual == "Dashboard":
 elif pagina_actual == "Base":
     st.markdown("<h2 class='text-2xl font-bold text-gray-800 mb-2'>Base de Datos Histórica</h2><p class='text-gray-500 mb-6'>Registro completo de incidentes detectados en el área metropolitana.</p>", unsafe_allow_html=True)
     if not df.empty:
-        st.dataframe(df[['fecha', 'colonia', 'tipo_incidente', 'causa', 'dano']], use_container_width=True, height=500)
+        df_limpio = df[['fecha', 'colonia', 'tipo_incidente', 'causa', 'dano']].copy()
+        df_limpio['fecha'] = pd.to_datetime(df_limpio['fecha']).dt.strftime('%Y-%m-%d')
+        # hide_index oculta la fea columna de números
+        st.dataframe(df_limpio, use_container_width=True, hide_index=True, height=600)
 
 # ==============================================================================
 # PANTALLA 3: ANALÍTICA AVANZADA
@@ -144,5 +147,5 @@ elif pagina_actual == "Analitica":
     render_statistics(df)
 
 
-st.markdown('</div>', unsafe_allow_html=True) # Cierra contenedor principal
+st.markdown('</div>', unsafe_allow_html=True)
 render_footer()

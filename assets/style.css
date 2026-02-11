@@ -5,7 +5,7 @@
 
 /* Ocultar interfaz nativa de Streamlit */
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
-section[data-testid="stSidebar"] { display: none !important; } /* APAGAMOS EL SIDEBAR NATIVO */
+section[data-testid="stSidebar"] { display: none !important; }
 
 /* Resetear el contenedor principal */
 .block-container { 
@@ -26,36 +26,50 @@ section[data-testid="stSidebar"] { display: none !important; } /* APAGAMOS EL SI
 .text-alert-red { color: #EF4444 !important; }
 .bg-alert-red { background-color: #EF4444 !important; }
 .text-success-green { color: #22C55E !important; }
+.text-info-blue { color: #3B82F6 !important; }
 
 /* Ajustes para Toggles de Streamlit */
 .stToggle { background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 5px; }
 
-/* --- NAVEGACIÓN FUNCIONAL (Radio Streamlit disfrazado) --- */
-[data-testid="stRadio"] {
-    background-color: #374151; /* Fondo Oxford Gray */
-    padding: 0;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-}
-[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex; flex-direction: row; gap: 30px;
-    padding: 0 2rem; justify-content: center;
-}
-[data-testid="stRadio"] > div[role="radiogroup"] > label {
+/* --- NAVEGACIÓN FUNCIONAL (Pestañas Flotantes Profesionales) --- */
+div[data-testid="stRadio"] {
+    display: flex;
+    justify-content: center;
     background: transparent !important;
-    color: #F3F4F6 !important; /* Letras Blancas */
-    padding: 15px 5px !important;
-    border-radius: 0 !important;
-    border-bottom: 3px solid transparent !important;
-    font-weight: 700 !important; /* Letra bold */
-    font-size: 15px !important; 
-    cursor: pointer; transition: 0.2s;
+    border: none !important;
+    box-shadow: none !important;
+    margin-top: -15px;
+    margin-bottom: 20px;
 }
-[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
-    color: #FACC15 !important; /* Amarillo al pasar el mouse */
+div[data-testid="stRadio"] > div[role="radiogroup"] {
+    background-color: #1F2937;
+    border-radius: 50px;
+    padding: 6px 12px;
+    display: inline-flex;
+    gap: 10px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    width: auto;
 }
-[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"] {
-    color: #FACC15 !important; /* Amarillo al seleccionar */
-    border-bottom: 3px solid #FACC15 !important;
+div[data-testid="stRadio"] > div[role="radiogroup"] > label {
+    background-color: transparent !important;
+    color: #9CA3AF !important;
+    padding: 10px 24px !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none !important;
 }
-[data-testid="stRadio"] div[role="radio"] { display: none; } /* Oculta el circulito nativo */
+div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
+    color: #FFFFFF !important;
+    background-color: rgba(255,255,255,0.05) !important;
+}
+div[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"] {
+    background-color: #FACC15 !important;
+    color: #111827 !important;
+    box-shadow: 0 4px 6px -1px rgba(250, 204, 21, 0.4);
+}
+div[data-testid="stRadio"] > div[role="radiogroup"] > label > div:first-child {
+    display: none !important; /* Oculta los circulitos nativos */
+}
