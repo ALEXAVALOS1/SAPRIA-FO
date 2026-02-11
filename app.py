@@ -7,7 +7,7 @@ import pandas as pd
 # --- CONFIGURACIÓN ---
 st.set_page_config(page_title="SAPRIA-FO", page_icon="🛡️", layout="wide", initial_sidebar_state="collapsed")
 
-# Cargar CSS
+# 1. Cargar CSS (CRÍTICO: DEBE SER LO PRIMERO)
 def local_css(file_name):
     try:
         with open(file_name, encoding='utf-8') as f:
@@ -15,21 +15,22 @@ def local_css(file_name):
     except: pass
 local_css("assets/style.css")
 
+# 2. Importaciones
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_nasa_firms_data, find_nearest_station, get_route_osrm
-    from src.navbar import render_navbar
+    from src.navbar import render_navbar # IMPORTAMOS EL NAVBAR
     from src.components import inject_tailwind, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
     from src.analytics import render_3d_density_map, render_statistics 
 except ImportError as e:
-    st.error(f"Error cargando módulos: {e}")
+    st.error(f"Error crítico: {e}")
     st.stop()
 
 inject_tailwind()
 
-# --- DATOS ---
+# 3. Datos
 if 'sim_coords' not in st.session_state: st.session_state['sim_coords'] = None
 JUAREZ_LAT, JUAREZ_LON = 31.7389, -106.4856 
 @st.cache_data(ttl=600)
@@ -48,18 +49,18 @@ sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 
 # ==============================================================================
-# 🛡️ BARRA DE NAVEGACIÓN SUPERIOR
+# 4. RENDERIZADO (Barra + Contenido)
 # ==============================================================================
+
+# A. BARRA SUPERIOR
 pagina_actual, btn_reporte = render_navbar()
 
 if btn_reporte:
     with st.spinner("Generando PDF..."):
         generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia)
-        st.toast("✅ Reporte Generado")
+        st.toast("✅ Reporte Listo")
 
-# ==============================================================================
-# CONTENIDO DE LA PÁGINA
-# ==============================================================================
+# B. CONTENIDO PRINCIPAL
 st.markdown('<div class="container mx-auto px-4">', unsafe_allow_html=True)
 
 if pagina_actual == "Dashboard":
@@ -78,8 +79,7 @@ if pagina_actual == "Dashboard":
              for ep in epicentros_ia:
                 folium.Circle(location=[ep['lat'], ep['lon']], radius=1500, color="#EF4444", weight=1, fill=True, fill_opacity=0.1).add_to(m)
         st_folium(m, width="100%", height=500)
-        
-        # AQUÍ RENDERIZAMOS EL PRONÓSTICO DEBAJO DEL MAPA
+        # Pronóstico restaurado aquí
         render_forecast_section(sim_temp)
 
     with col_der:

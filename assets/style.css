@@ -1,4 +1,4 @@
-/* --- FUENTES --- */
+/* --- FUENTES E ICONOS --- */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
@@ -6,53 +6,52 @@
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
-/* Configuración Base */
+/* Configuración General */
 .stApp { background-color: #F3F4F6 !important; }
 .block-container { 
     max-width: 100% !important; 
     padding: 0 !important; 
-    margin: 0 !important; 
+    margin: 0 !important;
     font-family: 'Montserrat', sans-serif !important;
 }
 
-/* ⬛ BARRA SUPERIOR FIJA (Gris Oxford) */
+/* ⬛ LA BARRA SUPERIOR (Fixed Header) */
 .fixed-header {
     position: fixed;
     top: 0; left: 0; right: 0;
-    height: 80px;
+    height: 90px;
     background-color: #374151; /* GRIS OXFORD */
-    z-index: 9999;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-    border-bottom: 2px solid #FACC15; /* Línea dorada fina */
+    z-index: 9998;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    border-bottom: 3px solid #FACC15; /* LÍNEA DORADA */
 }
 
-/* Espacio para que el contenido no quede oculto bajo la barra */
-.content-spacer { padding-top: 100px; }
+/* Espacio para empujar el contenido hacia abajo */
+.content-spacer { padding-top: 110px; }
 
-/* 🔘 MENÚ DE NAVEGACIÓN (Letras Doradas) */
-div[data-testid="stRadio"] { margin-top: 12px; } 
-
+/* 🔘 MENÚ DE NAVEGACIÓN (Estilo Dorado) */
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex; gap: 20px; justify-content: center;
+    display: flex; gap: 25px; justify-content: center;
+    background: transparent;
 }
 
 div[data-testid="stRadio"] label {
-    color: #FACC15 !important; /* DORADO SIEMPRE */
-    font-weight: 600 !important; font-size: 14px !important;
-    cursor: pointer; transition: 0.3s;
-    background: transparent !important; border: none !important;
-    padding: 5px 10px !important;
+    color: #9CA3AF !important; /* Gris suave inactivo */
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer;
+    background: transparent !important;
+    border: none !important;
+    transition: 0.3s;
 }
 
 div[data-testid="stRadio"] label:hover {
-    color: #FFFFFF !important; /* Blanco al pasar el mouse */
-    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    color: #FACC15 !important; /* Dorado al pasar el mouse */
 }
 
 div[data-testid="stRadio"] label[data-checked="true"] {
-    color: #FFFFFF !important; /* Blanco al seleccionar */
-    background-color: rgba(250, 204, 21, 0.2) !important; /* Fondo dorado sutil */
-    border-radius: 6px;
+    color: #FACC15 !important; /* DORADO ACTIVO */
+    font-weight: 800 !important;
     border-bottom: 2px solid #FACC15 !important;
 }
 
@@ -62,13 +61,13 @@ div[data-testid="stRadio"] div[role="radio"] { display: none; }
 div[data-testid="stButton"] button {
     background-color: #FACC15 !important;
     color: #111827 !important;
-    border: none !important; font-weight: 800 !important;
-    margin-top: 10px;
+    border: none !important;
+    font-weight: 800 !important;
+    border-radius: 4px !important;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 div[data-testid="stButton"] button:hover {
     background-color: #FFFFFF !important;
-    box-shadow: 0 0 10px #FACC15;
+    color: #FACC15 !important;
 }
-
-/* TARJETAS DE DATOS (Estilo limpio) */
-.bg-card { background-color: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
