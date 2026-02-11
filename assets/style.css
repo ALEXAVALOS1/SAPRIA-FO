@@ -1,5 +1,5 @@
 /* --- INYECCIÓN DE FUENTES --- */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
@@ -16,13 +16,25 @@ section[data-testid="stSidebar"] { display: none !important; }
     background-color: #F3F4F6;
 }
 
-/* --- COLORES OXFORD GRAY / TAILWIND --- */
+/* LA MAGIA: Dibuja la barra Gris Oxford a todo lo ancho de la pantalla */
+.block-container::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 50%;
+    width: 100vw;
+    height: 90px;
+    background-color: #374151; /* Gris Oxford Federal */
+    z-index: 0;
+    transform: translateX(-50%);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* --- COLORES TAILWIND --- */
 .bg-primary { background-color: #374151 !important; }
 .text-primary { color: #374151 !important; }
 .bg-secondary { background-color: #FACC15 !important; }
 .text-secondary { color: #FACC15 !important; }
 .bg-card-light { background-color: #FFFFFF !important; }
-.bg-background-light { background-color: #F3F4F6 !important; }
 .text-alert-red { color: #EF4444 !important; }
 .bg-alert-red { background-color: #EF4444 !important; }
 .text-success-green { color: #22C55E !important; }
@@ -31,44 +43,36 @@ section[data-testid="stSidebar"] { display: none !important; }
 /* Ajustes para Toggles de Streamlit */
 .stToggle { background: #FFFFFF; padding: 10px; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 5px; }
 
-/* --- NAVEGACIÓN FUNCIONAL (Pestañas Flotantes Profesionales) --- */
+/* --- NAVEGACIÓN PROFESIONAL (Radio Streamlit disfrazado) --- */
 div[data-testid="stRadio"] {
-    display: flex;
-    justify-content: center;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    margin-top: -15px;
-    margin-bottom: 20px;
+    position: relative;
+    z-index: 10;
+    margin-top: 15px; 
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    background-color: #1F2937;
-    border-radius: 50px;
-    padding: 6px 12px;
-    display: inline-flex;
-    gap: 10px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    width: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end; /* Carga los botones a la DERECHA */
+    gap: 20px;
+    padding-right: 30px;
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] > label {
-    background-color: transparent !important;
-    color: #9CA3AF !important;
-    padding: 10px 24px !important;
-    border-radius: 50px !important;
+    background: transparent !important;
+    color: #FACC15 !important; /* LETRAS DORADAS */
     font-weight: 700 !important;
-    font-size: 14px !important;
+    font-size: 15px !important;
     cursor: pointer;
-    transition: all 0.3s ease;
     border: none !important;
+    padding: 5px 15px !important;
+    border-radius: 0 !important;
+    transition: 0.3s;
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
-    color: #FFFFFF !important;
-    background-color: rgba(255,255,255,0.05) !important;
+    color: #FFFFFF !important; /* Se hacen blancas al pasar el mouse */
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"] {
-    background-color: #FACC15 !important;
-    color: #111827 !important;
-    box-shadow: 0 4px 6px -1px rgba(250, 204, 21, 0.4);
+    color: #FACC15 !important;
+    border-bottom: 3px solid #FACC15 !important; /* Subrayado dorado */
 }
 div[data-testid="stRadio"] > div[role="radiogroup"] > label > div:first-child {
     display: none !important; /* Oculta los circulitos nativos */

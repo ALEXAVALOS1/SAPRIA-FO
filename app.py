@@ -17,7 +17,7 @@ local_css("assets/style.css")
 
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_nasa_firms_data, find_nearest_station, get_route_osrm
-    from src.components import inject_tailwind, render_header, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
+    from src.components import inject_tailwind, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
@@ -49,22 +49,34 @@ sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 
 # ==============================================================================
-# ENCABEZADO Y NAVEGACIÓN
+# ENCABEZADO Y NAVEGACIÓN (BARRA OXFORD GRAY DE EXTREMO A EXTREMO)
 # ==============================================================================
-render_header()
+st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True) # Espacio para el top
 
-# LA NUEVA BARRA DE NAVEGACIÓN FUNCIONAL (Pestañas Flotantes)
-opciones_nav = ["🗺️ Dashboard Táctico", "📊 Base de Datos Histórica", "🚨 Analítica 3D Avanzada"]
-seleccion = st.radio("Menú", opciones_nav, horizontal=True, label_visibility="collapsed")
+col_logo, col_nav = st.columns([1, 2.5])
 
-if "Dashboard" in seleccion:
-    pagina_actual = "Dashboard"
-elif "Base" in seleccion:
-    pagina_actual = "Base"
-elif "Analítica" in seleccion:
-    pagina_actual = "Analitica"
+# LOGO A LA IZQUIERDA (DORADO)
+with col_logo:
+    st.markdown("""
+    <div style="color: #FACC15; font-size: 26px; font-weight: 900; z-index: 10; position: relative; padding-left: 20px;">
+        SAPRIA-FO
+        <div style="color: #FFFFFF; font-size: 10px; font-weight: 600; letter-spacing: 2px; margin-top: -3px;">
+            MONITOREO MUNICIPAL
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown('<div class="container mx-auto px-4 py-6">', unsafe_allow_html=True)
+# BOTONES A LA DERECHA (DORADOS)
+with col_nav:
+    opciones_nav = ["🗺️ Dashboard Táctico", "📊 Base de Datos Histórica", "🚨 Analítica 3D Avanzada"]
+    seleccion = st.radio("Menú", opciones_nav, horizontal=True, label_visibility="collapsed")
+
+if "Dashboard" in seleccion: pagina_actual = "Dashboard"
+elif "Base" in seleccion: pagina_actual = "Base"
+elif "Analítica" in seleccion: pagina_actual = "Analitica"
+
+# Contenedor Principal (Debajo de la barra)
+st.markdown('<div class="container mx-auto px-4 py-8">', unsafe_allow_html=True)
 
 # ==============================================================================
 # PANTALLA 1: DASHBOARD PRINCIPAL
@@ -119,8 +131,8 @@ if pagina_actual == "Dashboard":
         if map_data['last_clicked'] and st.session_state['sim_coords'] != map_data['last_clicked']:
             st.session_state['sim_coords'] = map_data['last_clicked']; st.rerun()
 
-        # AQUÍ RENDERIZAMOS EL PRONÓSTICO
-        render_forecast_section()
+        # PRONÓSTICO DINÁMICO (Con temperatura real en vivo)
+        render_forecast_section(sim_temp)
 
     with col_der:
         render_right_metrics(len(df) if not df.empty else 0)
@@ -134,7 +146,7 @@ elif pagina_actual == "Base":
     if not df.empty:
         df_limpio = df[['fecha', 'colonia', 'tipo_incidente', 'causa', 'dano']].copy()
         df_limpio['fecha'] = pd.to_datetime(df_limpio['fecha']).dt.strftime('%Y-%m-%d')
-        # hide_index oculta la fea columna de números
+        # Configuración para que la tabla sea limpia, profesional y SIN índice
         st.dataframe(df_limpio, use_container_width=True, hide_index=True, height=600)
 
 # ==============================================================================

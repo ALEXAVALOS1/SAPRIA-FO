@@ -1,28 +1,9 @@
 import streamlit as st
+from datetime import datetime, timedelta
 
 def inject_tailwind():
     """Inyecta la librería Tailwind CSS vía CDN para renderizar tu diseño."""
     st.markdown('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">', unsafe_allow_html=True)
-
-def render_header():
-    st.markdown("""
-<header class="bg-primary text-white shadow-md">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <span class="material-icons-outlined text-secondary text-3xl">local_fire_department</span>
-            <div class="border-l border-white/20 h-8 mx-2"></div>
-            <div class="leading-tight">
-                <h1 class="font-bold text-xl text-secondary" style="margin:0;">SINAPRIA-FO</h1>
-                <p class="text-[10px] text-white/80 tracking-widest uppercase font-semibold" style="margin:0; font-size:10px;">MONITOREO MUNICIPAL JUÁREZ</p>
-            </div>
-        </div>
-        <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
-            <a class="hover:text-secondary transition-colors" style="color:white; text-decoration:none;" href="#">Soporte Técnico</a>
-            <a class="hover:text-secondary transition-colors" style="color:white; text-decoration:none;" href="#">Acciones Preventivas</a>
-        </nav>
-    </div>
-</header>
-    """, unsafe_allow_html=True)
 
 def render_left_alert_card(nasa_anomalies):
     if nasa_anomalies > 0:
@@ -85,7 +66,6 @@ def render_log_card(epicentros_ia):
     html += '<div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">'
     html += '<h2 class="text-xs font-bold text-gray-800 uppercase tracking-wider m-0">Zonas K-Means (IA)</h2>'
     html += '</div><div class="p-4 space-y-3">'
-    
     if epicentros_ia:
         for ep in epicentros_ia[:3]:
             badge_color = "bg-alert-red" if ep['peligro'] == "CRÍTICO" else "bg-secondary"
@@ -96,27 +76,37 @@ def render_log_card(epicentros_ia):
             html += '</div>'
             html += f'<p class="text-xs text-gray-500 mt-1 m-0">Concentración: {ep["weight"]} eventos históricos.</p>'
             html += '</div>'
-            
     html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
-def render_forecast_section():
-    items = [
-        ("06:00 p.m.", "device_thermostat", "19°", "text-success-green"), 
-        ("09:00 p.m.", "device_thermostat", "14°", "text-success-green"),
-        ("12:00 a.m.", "ac_unit", "9°", "text-info-blue"), 
-        ("03:00 a.m.", "ac_unit", "9°", "text-info-blue"),
-        ("06:00 a.m.", "device_thermostat", "9°", "text-success-green"), 
-        ("09:00 a.m.", "light_mode", "14°", "text-secondary")
-    ]
+def render_forecast_section(base_temp):
+    """Calcula un pronóstico realista de las próximas 15 horas basado en la temperatura actual."""
+    now = datetime.now()
     html = '<div class="bg-card-light rounded-xl shadow-sm border border-gray-100 p-5 mt-4">'
-    html += '<div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex justify-between"><span><span class="material-icons-outlined text-[12px] mr-1">schedule</span> Pronóstico de Riesgo (12 hrs)</span><span>OpenWeather</span></div>'
+    html += '<div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex justify-between"><span><span class="material-icons-outlined text-[12px] mr-1">schedule</span> Pronóstico de Riesgo (15 hrs)</span><span>OpenWeather Live</span></div>'
     html += '<div class="flex justify-between items-center text-center">'
-    for time, icon, temp, col in items:
-        html += f'<div class="flex flex-col items-center"><span class="text-[10px] text-gray-500 font-bold mb-1">{time}</span>'
+    
+    for i in range(6):
+        future_time = now + timedelta(hours=i*3)
+        time_str = future_time.strftime("%I:00 %p").lower()
+        
+        # Simulación matemática de curva térmica diurna/nocturna
+        if 6 <= future_time.hour < 15:
+            temp = base_temp + (future_time.hour - 6) * 0.5
+        elif 15 <= future_time.hour < 20:
+            temp = base_temp + (20 - future_time.hour) * 0.3
+        else:
+            temp = base_temp - 3 - (i * 0.5)
+            
+        t_val = round(temp)
+        if t_val > 30: col, icon = "text-alert-red", "local_fire_department"
+        elif t_val > 20: col, icon = "text-secondary", "device_thermostat"
+        else: col, icon = "text-info-blue", "ac_unit"
+        
+        html += f'<div class="flex flex-col items-center"><span class="text-[10px] text-gray-500 font-bold mb-1">{time_str}</span>'
         html += f'<span class="material-icons-outlined {col} text-2xl my-1">{icon}</span>'
-        html += f'<span class="text-sm font-black text-gray-800">{temp}</span>'
-        html += '<span class="text-[8px] bg-green-50 text-success-green px-2 py-0.5 rounded border border-green-200 font-bold mt-1">BAJO</span></div>'
+        html += f'<span class="text-sm font-black text-gray-800">{t_val}°C</span></div>'
+        
     html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
