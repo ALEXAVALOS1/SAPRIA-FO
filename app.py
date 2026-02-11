@@ -15,19 +15,16 @@ def local_css(file_name):
     except: pass
 local_css("assets/style.css")
 
-# Importaciones Seguras
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_nasa_firms_data, find_nearest_station, get_route_osrm
-    # IMPORTAMOS EL NUEVO NAVBAR
-    from src.navbar import render_navbar 
-    # IMPORTAMOS LOS COMPONENTES RESTANTES
+    from src.navbar import render_navbar
     from src.components import inject_tailwind, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
     from src.analytics import render_3d_density_map, render_statistics 
 except ImportError as e:
-    st.error(f"Error crítico de importación: {e}")
+    st.error(f"Error cargando módulos: {e}")
     st.stop()
 
 inject_tailwind()
@@ -51,15 +48,14 @@ sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 
 # ==============================================================================
-# 🛡️ RENDERIZADO DE LA BARRA SUPERIOR (Desde el nuevo archivo)
+# 🛡️ BARRA DE NAVEGACIÓN SUPERIOR
 # ==============================================================================
 pagina_actual, btn_reporte = render_navbar()
 
-# Lógica del botón de reporte global
 if btn_reporte:
-    with st.spinner("Generando PDF Táctico..."):
+    with st.spinner("Generando PDF..."):
         generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia)
-        st.toast("✅ Reporte Generado Exitosamente")
+        st.toast("✅ Reporte Generado")
 
 # ==============================================================================
 # CONTENIDO DE LA PÁGINA
@@ -82,6 +78,8 @@ if pagina_actual == "Dashboard":
              for ep in epicentros_ia:
                 folium.Circle(location=[ep['lat'], ep['lon']], radius=1500, color="#EF4444", weight=1, fill=True, fill_opacity=0.1).add_to(m)
         st_folium(m, width="100%", height=500)
+        
+        # AQUÍ RENDERIZAMOS EL PRONÓSTICO DEBAJO DEL MAPA
         render_forecast_section(sim_temp)
 
     with col_der:

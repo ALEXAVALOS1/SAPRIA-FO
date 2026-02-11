@@ -2,59 +2,73 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
-/* Ocultar elementos nativos que estorban */
+/* Ocultar elementos nativos */
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
 /* Configuración Base */
 .stApp { background-color: #F3F4F6 !important; }
-.block-container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; font-family: 'Montserrat', sans-serif !important; }
+.block-container { 
+    max-width: 100% !important; 
+    padding: 0 !important; 
+    margin: 0 !important; 
+    font-family: 'Montserrat', sans-serif !important;
+}
 
-/* ⬛ LA BARRA OSCURA DE FONDO (El Telón) */
-.header-container {
-    position: fixed; top: 0; left: 0; right: 0;
+/* ⬛ BARRA SUPERIOR FIJA (Gris Oxford) */
+.fixed-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
     height: 80px;
-    background-color: #1F2937; /* Gris Oxford Muy Oscuro */
-    z-index: 999;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    border-bottom: 2px solid #FACC15; /* Línea dorada inferior fina */
+    background-color: #374151; /* GRIS OXFORD */
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    border-bottom: 2px solid #FACC15; /* Línea dorada fina */
 }
 
-/* Espacio para que el contenido no quede debajo de la barra fija */
-.content-spacer { height: 100px; }
+/* Espacio para que el contenido no quede oculto bajo la barra */
+.content-spacer { padding-top: 100px; }
 
-/* 🔘 NAVEGACIÓN (Transformando st.radio en Text Links) */
-div[data-testid="stRadio"] { margin-top: 18px; } /* Centrado vertical */
+/* 🔘 MENÚ DE NAVEGACIÓN (Letras Doradas) */
+div[data-testid="stRadio"] { margin-top: 12px; } 
+
 div[data-testid="stRadio"] > div[role="radiogroup"] {
-    display: flex; gap: 30px; justify-content: center;
+    display: flex; gap: 20px; justify-content: center;
 }
+
 div[data-testid="stRadio"] label {
-    color: #9CA3AF !important; /* Gris suave */
+    color: #FACC15 !important; /* DORADO SIEMPRE */
     font-weight: 600 !important; font-size: 14px !important;
     cursor: pointer; transition: 0.3s;
-    background: transparent !important; border: none !important; padding: 0 !important;
+    background: transparent !important; border: none !important;
+    padding: 5px 10px !important;
 }
-div[data-testid="stRadio"] label:hover { color: #FFFFFF !important; }
+
+div[data-testid="stRadio"] label:hover {
+    color: #FFFFFF !important; /* Blanco al pasar el mouse */
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
 div[data-testid="stRadio"] label[data-checked="true"] {
-    color: #FACC15 !important; /* DORADO ACTIVO */
-    text-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
-    font-weight: 800 !important;
+    color: #FFFFFF !important; /* Blanco al seleccionar */
+    background-color: rgba(250, 204, 21, 0.2) !important; /* Fondo dorado sutil */
+    border-radius: 6px;
+    border-bottom: 2px solid #FACC15 !important;
 }
-div[data-testid="stRadio"] div[role="radio"] { display: none; } /* Ocultar círculos */
+
+div[data-testid="stRadio"] div[role="radio"] { display: none; } 
 
 /* 🟡 BOTÓN DE REPORTE */
 div[data-testid="stButton"] button {
     background-color: #FACC15 !important;
     color: #111827 !important;
-    border: none !important; font-weight: 800 !important; font-size: 12px !important;
-    border-radius: 4px !important; margin-top: 15px; /* Centrado vertical */
-    box-shadow: 0 0 15px rgba(250, 204, 21, 0.3);
+    border: none !important; font-weight: 800 !important;
+    margin-top: 10px;
 }
 div[data-testid="stButton"] button:hover {
-    background-color: #FFFFFF !important; color: #111827 !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 0 10px #FACC15;
 }
 
-/* 📊 METRICAS Y TARJETAS */
-.bg-card-light { background-color: #FFFFFF; }
-.text-alert-red { color: #EF4444; } .bg-alert-red { background-color: #EF4444; }
-.text-secondary { color: #FACC15; } .bg-secondary { background-color: #FACC15; }
+/* TARJETAS DE DATOS (Estilo limpio) */
+.bg-card { background-color: white; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }

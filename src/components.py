@@ -4,25 +4,7 @@ from datetime import datetime, timedelta
 def inject_tailwind():
     st.markdown('<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">', unsafe_allow_html=True)
 
-def render_logo_html():
-    # Eliminamos identación para evitar el bug visual
-    html = '<div style="display: flex; align-items: center; gap: 12px; padding-top: 5px;">'
-    html += '<div style="background-color: white; width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">'
-    html += '<span class="material-icons-outlined" style="color: #374151; font-size: 22px;">shield</span></div>'
-    html += '<div style="line-height: 1;">'
-    html += '<h1 style="color: #FACC15; font-weight: 900; font-size: 22px; margin: 0; font-family: sans-serif;">SAPRIA-FO</h1>'
-    html += '<p style="color: white; font-size: 9px; font-weight: 500; margin: 0; letter-spacing: 1px; opacity: 0.8;">MONITOREO MUNICIPAL</p>'
-    html += '</div></div>'
-    st.markdown(html, unsafe_allow_html=True)
-
-def render_links_html():
-    html = '<div style="display: flex; align-items: center; gap: 15px; justify-content: flex-end; padding-top: 10px;">'
-    html += '<a href="#" style="color: #9CA3AF; text-decoration: none; font-size: 11px; font-weight: 600;">Soporte</a>'
-    html += '<span class="material-icons-outlined" style="color: #FACC15; font-size: 18px;">notifications</span>'
-    html += '<span class="material-icons-outlined" style="color: white; font-size: 18px;">account_circle</span>'
-    html += '</div>'
-    st.markdown(html, unsafe_allow_html=True)
-
+# --- TARJETA ALERTA IZQUIERDA ---
 def render_left_alert_card(nasa_anomalies):
     if nasa_anomalies > 0:
         html = '<div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-red-500 mb-4">'
@@ -32,6 +14,7 @@ def render_left_alert_card(nasa_anomalies):
         html += f'<p class="text-xs text-gray-600 mb-2 font-medium">NASA VIIRS detectó {nasa_anomalies} anomalías.</p></div>'
         st.markdown(html, unsafe_allow_html=True)
 
+# --- TARJETA CLIMA ---
 def render_factors_card(weather, fwi_cat):
     temp = weather['main']['temp'] if weather else "--"
     hum = weather['main']['humidity'] if weather else "--"
@@ -46,6 +29,7 @@ def render_factors_card(weather, fwi_cat):
     html += f'<div class="flex flex-col"><span class="text-xs font-bold text-gray-700">FWI</span><span class="text-[10px] font-bold text-red-500">{fwi_cat}</span></div></div></div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
+# --- METRICAS DERECHA ---
 def render_right_metrics(total_incendios):
     html = '<div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-4">'
     html += '<h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Métricas</h2>'
@@ -57,6 +41,7 @@ def render_right_metrics(total_incendios):
     html += '<div class="text-[10px] font-bold text-gray-600 mt-1 uppercase">Riesgo</div></div></div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
+# --- ZONAS IA ---
 def render_log_card(epicentros_ia):
     html = '<div class="bg-white rounded-xl shadow-sm border border-gray-100 flex-grow flex flex-col overflow-hidden mb-4">'
     html += '<div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">'
@@ -70,10 +55,11 @@ def render_log_card(epicentros_ia):
     html += '</div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
+# --- PRONÓSTICO ---
 def render_forecast_section(base_temp):
     now = datetime.now()
     html = '<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mt-4">'
-    html += '<div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex justify-between"><span>Pronóstico</span><span>Live</span></div>'
+    html += '<div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 flex justify-between"><span>Pronóstico (12h)</span><span>Live</span></div>'
     html += '<div class="flex justify-between items-center text-center">'
     for i in range(5):
         future_time = now + timedelta(hours=i*3)
