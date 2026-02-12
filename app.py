@@ -21,7 +21,8 @@ try:
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
-    from src.analytics import render_3d_density_map
+    # IMPORTAMOS LA NUEVA FUNCIÓN DE GRÁFICAS
+    from src.analytics import render_3d_density_map, render_tactical_charts
 except ImportError as e:
     st.error(f"Error de sistema: {e}")
     st.stop()
@@ -58,21 +59,15 @@ with st.container():
         st.markdown('<div style="display:flex;align-items:center;gap:10px;"><span class="material-icons-outlined" style="color:#FACC15;font-size:32px;">shield</span><div style="line-height:1.1;"><h1 style="color:white;font-weight:900;font-size:20px;margin:0;font-family:sans-serif;">SAPRIA-FO</h1><p style="color:#D1D5DB;font-size:9px;font-weight:600;letter-spacing:1px;margin:0;">MONITOREO MUNICIPAL</p></div></div>', unsafe_allow_html=True)
         
     with col_menu:
-        opciones = ["Dashboard Táctico", "Base Histórica", "Analítica 3D"]
+        opciones = ["Dashboard Táctico", "Base Histórica", "Analítica Avanzada"]
         seleccion = st.radio("Nav", opciones, horizontal=True, label_visibility="collapsed")
         
     with col_btn:
         c_spacer, c_b = st.columns([1, 2])
         with c_b:
-            # --- AQUÍ ESTÁ EL ARREGLO DEL BOTÓN ---
-            # Generamos el PDF primero
             pdf_path = generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia, len(df))
-            
-            # Leemos el archivo en binario
             with open(pdf_path, "rb") as f:
                 pdf_data = f.read()
-            
-            # Usamos el botón de descarga REAL
             st.download_button(
                 label="⬇️ DESCARGAR PDF",
                 data=pdf_data,
@@ -80,7 +75,6 @@ with st.container():
                 mime="application/pdf",
                 use_container_width=True
             )
-    
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Lógica
@@ -120,7 +114,10 @@ elif page == "Base":
     st.dataframe(df, use_container_width=True, hide_index=True)
 
 elif page == "Analitica":
-    st.markdown("## Analítica 3D")
+    st.markdown("## Inteligencia Táctica (Analítica Avanzada)")
+    # MOSTRAR GRÁFICAS Y MAPA 3D
+    render_tactical_charts(df)
+    st.markdown("---")
     render_3d_density_map(df)
 
 st.markdown('</div>', unsafe_allow_html=True)

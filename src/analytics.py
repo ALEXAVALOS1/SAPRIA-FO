@@ -1,61 +1,76 @@
 import streamlit as st
 import pydeck as pdk
-import plotly.express as px
 import pandas as pd
+import altair as alt
 
 def render_3d_density_map(df):
-    """Genera un mapa 3D de hexágonos estilo Cyberpunk con altura ajustada."""
-    if df.empty: return
-    
-    st.markdown("<h3 style='color:#F8FAFC; margin-bottom:15px;'><i class='fa-solid fa-cube' style='color:#3B82F6;'></i> Topografía de Riesgo 3D</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#94A3B8; font-size:13px;'>Análisis de densidad volumétrica de incidentes históricos.</p>", unsafe_allow_html=True)
+    """Mapa Hexagonal 3D Táctico"""
+    if df.empty:
+        st.warning("Sin datos para renderizar mapa 3D.")
+        return
 
-    # Configuración de la capa 3D (Hexágonos)
+    st.markdown("""
+    <div style="background-color:#1F2937; padding:15px; border-radius:10px; border-left: 5px solid #FACC15; margin-bottom:20px;">
+        <h4 style="color:white; margin:0;">🔥 Mapa de Calor Volumétrico</h4>
+        <p style="color:#9CA3AF; font-size:12px; margin:0;">Visualización de densidad de incidentes acumulados.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
     layer = pdk.Layer(
         "HexagonLayer",
-        data=df,
+        df,
         get_position=["lon", "lat"],
-        radius=300, 
-        elevation_scale=15, # <--- ¡AQUÍ ESTÁ EL CAMBIO! (Antes era 50, ahora son más bajas)
-        elevation_range=[0, 1000],
-        extruded=True,
-        get_fill_color="[225, 29, 72, 200]", 
+        auto_highlight=True,
+        elevation_scale=50,
         pickable=True,
-        auto_highlight=True
+        elevation_range=[0, 3000],
+        extruded=True,
+        coverage=1,
+        radius=200,
+        get_fill_color="[255, (1 - elevationValue / 500) * 255, 0, 180]", # Gradiente fuego
     )
 
     view_state = pdk.ViewState(
-        latitude=31.7389, longitude=-106.4856, zoom=10.5, pitch=50, bearing=-15
+        longitude=-106.4856,
+        latitude=31.7389,
+        zoom=11,
+        pitch=50, # Inclinación 3D
     )
 
     r = pdk.Deck(
-        map_provider="carto",
-        map_style="dark",
-        layers=[layer], 
-        initial_view_state=view_state, 
-        tooltip={"text": "Concentración Crítica: {elevationValue} incidentes"}
+        layers=[layer],
+        initial_view_state=view_state,
+        tooltip={"text": "Densidad de Focos: {elevationValue}"},
+        map_style="mapbox://styles/mapbox/dark-v10"
     )
     
-    st.pydeck_chart(r, use_container_width=True)
+    st.pydeck_chart(r)
 
-def render_statistics(df):
-    """Genera gráficos interactivos con Plotly en modo oscuro."""
+def render_tactical_charts(df):
+    """Genera gráficas de tendencias con estilo SAPRIA"""
     if df.empty: return
-    
-    st.markdown("<h3 style='color:#F8FAFC; margin-bottom:15px; margin-top:30px;'><i class='fa-solid fa-chart-pie' style='color:#F59E0B;'></i> Análisis Estadístico</h3>", unsafe_allow_html=True)
+
+    # Preparar datos
+    df['fecha'] = pd.to_datetime(df['fecha'])
+    df['hora'] = pd.to_numeric(df['hora'], errors='coerce').fillna(0).astype(int)
+    df['mes'] = df['fecha'].dt.month_name()
     
     col1, col2 = st.columns(2)
     
     with col1:
-        top_colonias = df['colonia'].value_counts().head(10).reset_index()
-        top_colonias.columns = ['Colonia', 'Incidentes']
-        fig_bar = px.bar(top_colonias, x='Incidentes', y='Colonia', orientation='h', title='Top 10 Zonas Críticas', color='Incidentes', color_continuous_scale='Reds')
-        fig_bar.update_layout(template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', yaxis={'categoryorder':'total ascending'}, font=dict(family="Inter", color="#94A3B8"))
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.markdown("<h5 style='color:#374151'>Incidencias por Hora del Día</h5>", unsafe_allow_html=True)
+        chart_hora = alt.Chart(df).mark_bar(color='#374151').encode(
+            x=alt.X('hora:O', title='Hora (0-24)'),
+            y=alt.Y('count()', title='Focos'),
+            tooltip=['hora', 'count()']
+        ).properties(height=250)
+        st.altair_chart(chart_hora, use_container_width=True)
         
     with col2:
-        tipo_inc = df['tipo_incidente'].value_counts().reset_index()
-        tipo_inc.columns = ['Tipo', 'Cantidad']
-        fig_pie = px.pie(tipo_inc, values='Cantidad', names='Tipo', hole=0.6, title='Distribución por Tipo de Evento', color_discrete_sequence=px.colors.sequential.Plasma)
-        fig_pie.update_layout(template='plotly_dark', paper_bgcolor='rgba(0,0,0,0)', font=dict(family="Inter", color="#94A3B8"))
-        st.plotly_chart(fig_pie, use_container_width=True)
+        st.markdown("<h5 style='color:#374151'>Severidad de Incidentes</h5>", unsafe_allow_html=True)
+        chart_sev = alt.Chart(df).mark_arc(innerRadius=50).encode(
+            theta=alt.Theta("count()"),
+            color=alt.Color("dano", scale=alt.Scale(scheme='goldorange'), title="Daño"),
+            tooltip=["dano", "count()"]
+        ).properties(height=250)
+        st.altair_chart(chart_sev, use_container_width=True)
