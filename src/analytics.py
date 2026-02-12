@@ -7,24 +7,26 @@ def render_tactical_dashboard(df):
     """
     Renderiza el tablero de inteligencia histórica con filtros y gráficas.
     """
-    # 1. PREPARACIÓN DE DATOS BLINDADA
     if df.empty:
         st.warning("No hay datos históricos para analizar.")
-        return
+        return df
 
-    # Copia segura para no afectar el dataframe original
+    # 1. COPIA SEGURA DE DATOS
     data = df.copy()
     
-    # Asegurar formatos de fecha y hora
+    # 2. ARREGLO DEL ERROR DE HORA (CRÍTICO)
+    # Convertimos a fecha real
     data['fecha'] = pd.to_datetime(data['fecha'])
-    # Extraer hora limpia (si falla, pone 0)
-    data['hora_clean'] = pd.to_numeric(data['hora'], errors='coerce').fillna(0).astype(int)
-    # Día de la semana en español
+    
+    # EXTRAEMOS LA HORA DIRECTAMENTE DE LA FECHA (Esto evita el KeyError)
+    data['hora_clean'] = data['fecha'].dt.hour
+    
+    # Día de la semana
     dias_es = {0: 'Lunes', 1: 'Martes', 2: 'Miércoles', 3: 'Jueves', 4: 'Viernes', 5: 'Sábado', 6: 'Domingo'}
     data['dia_num'] = data['fecha'].dt.dayofweek
     data['dia_nombre'] = data['dia_num'].map(dias_es)
 
-    # 2. FILTROS DE INTELIGENCIA
+    # 3. FILTROS DE INTELIGENCIA
     st.markdown("""
     <div style="background-color:white; padding:15px; border-radius:10px; border:1px solid #E5E7EB; margin-bottom:20px;">
         <h4 style="color:#374151; margin:0 0 10px 0; font-size:14px; font-weight:bold;">🔎 FILTROS DE TIEMPO</h4>
@@ -37,27 +39,25 @@ def render_tactical_dashboard(df):
         max_date = data['fecha'].max().date()
         date_range = st.date_input("Rango de Fechas", [min_date, max_date])
 
-    # Filtrar datos según selección
+    # Filtrar datos
     if len(date_range) == 2:
         mask = (data['fecha'].dt.date >= date_range[0]) & (data['fecha'].dt.date <= date_range[1])
         data = data.loc[mask]
 
-    # 3. GRÁFICAS ESTRATÉGICAS (Oxford & Gold)
+    # 4. GRÁFICAS ESTRATÉGICAS
     col_g1, col_g2 = st.columns(2, gap="medium")
 
     with col_g1:
         st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>🔥 LA HORA DEL DIABLO (Incidentes por Hora)</h5>", unsafe_allow_html=True)
-        # Gráfica de Barras: Hora del día
         chart_hora = alt.Chart(data).mark_bar(color='#374151', cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
-            x=alt.X('hora_clean:O', title='Hora del Día (24h)'),
-            y=alt.Y('count()', title='Cantidad de Focos'),
+            x=alt.X('hora_clean:O', title='Hora (0-24h)'),
+            y=alt.Y('count()', title='Focos'),
             tooltip=['hora_clean', 'count()']
         ).properties(height=220)
         st.altair_chart(chart_hora, use_container_width=True)
 
     with col_g2:
         st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>📅 DÍAS DE ALTO RIESGO</h5>", unsafe_allow_html=True)
-        # Gráfica de Barras: Día de la semana (Ordenada)
         chart_dia = alt.Chart(data).mark_bar(color='#FACC15').encode(
             x=alt.X('dia_nombre:N', sort=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'], title='Día'),
             y=alt.Y('count()', title='Incidentes'),
@@ -65,18 +65,16 @@ def render_tactical_dashboard(df):
         ).properties(height=220)
         st.altair_chart(chart_dia, use_container_width=True)
 
-    return data # Retornamos datos filtrados para el mapa 3D
+    return data
 
 def render_3d_density_map(df):
-    """Mapa Hexagonal 3D Táctico"""
     if df.empty:
-        st.info("Selecciona un rango de fechas con datos para ver el mapa 3D.")
+        st.info("Sin datos para mostrar en el mapa 3D.")
         return
 
     st.markdown("""
     <div style="background-color:#1F2937; padding:15px; border-radius:10px; border-left: 5px solid #FACC15; margin-top:20px; margin-bottom:20px;">
         <h4 style="color:white; margin:0; font-size:16px;">🗺️ Mapa Volumétrico de Calor</h4>
-        <p style="color:#9CA3AF; font-size:12px; margin:0;">Altura del hexágono = Cantidad de incendios históricos.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -91,7 +89,7 @@ def render_3d_density_map(df):
         extruded=True,
         coverage=1,
         radius=200,
-        get_fill_color="[255, (1 - elevationValue / 500) * 255, 0, 180]", # Gradiente fuego
+        get_fill_color="[255, (1 - elevationValue / 500) * 255, 0, 180]",
     )
 
     view_state = pdk.ViewState(
@@ -104,7 +102,7 @@ def render_3d_density_map(df):
     r = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
-        tooltip={"text": "Densidad: {elevationValue} incidentes"},
+        tooltip={"text": "Densidad: {elevationValue}"},
         map_style="mapbox://styles/mapbox/dark-v10"
     )
     
