@@ -15,8 +15,7 @@ def render_tactical_dashboard(df):
     data = df.copy()
     data['fecha'] = pd.to_datetime(data['fecha'])
 
-    # --- NUEVA LÓGICA: USAR MESES EN LUGAR DE HORAS ---
-    # Extraemos el nombre del mes y el número para ordenar
+    # MESES
     meses_es = {
         1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril', 5: 'Mayo', 6: 'Junio',
         7: 'Julio', 8: 'Agosto', 9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
@@ -24,7 +23,7 @@ def render_tactical_dashboard(df):
     data['mes_num'] = data['fecha'].dt.month
     data['mes_nombre'] = data['mes_num'].map(meses_es)
 
-    # Día de la semana
+    # DÍAS
     dias_es = {0: 'Lunes', 1: 'Martes', 2: 'Miércoles', 3: 'Jueves', 4: 'Viernes', 5: 'Sábado', 6: 'Domingo'}
     data['dia_num'] = data['fecha'].dt.dayofweek
     data['dia_nombre'] = data['dia_num'].map(dias_es)
@@ -46,12 +45,11 @@ def render_tactical_dashboard(df):
         mask = (data['fecha'].dt.date >= date_range[0]) & (data['fecha'].dt.date <= date_range[1])
         data = data.loc[mask]
 
-    # 3. GRÁFICAS ESTRATÉGICAS (MES Y DÍA)
+    # 3. GRÁFICAS ESTRATÉGICAS
     col_g1, col_g2 = st.columns(2, gap="medium")
 
     with col_g1:
         st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>📅 TENDENCIA MENSUAL (Temporada de Riesgo)</h5>", unsafe_allow_html=True)
-        # Gráfica de Barras: MESES (Ordenada Cronológicamente)
         chart_mes = alt.Chart(data).mark_bar(color='#374151', cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
             x=alt.X('mes_nombre:N', sort=list(meses_es.values()), title='Mes'),
             y=alt.Y('count()', title='Incidentes'),
@@ -61,7 +59,6 @@ def render_tactical_dashboard(df):
 
     with col_g2:
         st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>📆 DÍAS DE ALTO RIESGO</h5>", unsafe_allow_html=True)
-        # Gráfica de Barras: DÍAS
         chart_dia = alt.Chart(data).mark_bar(color='#FACC15').encode(
             x=alt.X('dia_nombre:N', sort=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'], title='Día'),
             y=alt.Y('count()', title='Incidentes'),
@@ -83,26 +80,29 @@ def render_3d_density_map(df):
     </div>
     """, unsafe_allow_html=True)
 
-    # CAPA HEXAGONAL CORREGIDA (RADIO PEQUEÑO PARA PRECISIÓN)
+    # CAPA HEXAGONAL CALIBRADA
     layer = pdk.Layer(
         "HexagonLayer",
         df,
         get_position=["lon", "lat"],
         auto_highlight=True,
-        elevation_scale=30,
+        # 1. BAJAMOS LA ESCALA DE ALTURA (Antes 30 -> Ahora 10)
+        elevation_scale=10,
         pickable=True,
-        elevation_range=[0, 1000],
+        # 2. ACOTAMOS EL RANGO PARA QUE LOS PEQUEÑOS NO DESAPAREZCAN
+        elevation_range=[0, 1000], 
         extruded=True,
         coverage=1,
-        radius=30,  # <-- TAMAÑO REDUCIDO A 30 METROS
-        get_fill_color="[255, (1 - elevationValue / 200) * 255, 0, 160]",
+        radius=30, 
+        # Color: Gradiente de Rojo a Amarillo (Más visible)
+        get_fill_color="[255, (1 - elevationValue / 200) * 255, 0, 200]",
     )
 
     view_state = pdk.ViewState(
         longitude=-106.4856,
         latitude=31.7389,
         zoom=11,
-        pitch=45,
+        pitch=50, # Un poco más de inclinación para ver volumen
     )
 
     r = pdk.Deck(
