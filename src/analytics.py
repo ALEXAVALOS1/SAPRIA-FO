@@ -3,16 +3,80 @@ import pydeck as pdk
 import pandas as pd
 import altair as alt
 
+def render_tactical_dashboard(df):
+    """
+    Renderiza el tablero de inteligencia histórica con filtros y gráficas.
+    """
+    # 1. PREPARACIÓN DE DATOS BLINDADA
+    if df.empty:
+        st.warning("No hay datos históricos para analizar.")
+        return
+
+    # Copia segura para no afectar el dataframe original
+    data = df.copy()
+    
+    # Asegurar formatos de fecha y hora
+    data['fecha'] = pd.to_datetime(data['fecha'])
+    # Extraer hora limpia (si falla, pone 0)
+    data['hora_clean'] = pd.to_numeric(data['hora'], errors='coerce').fillna(0).astype(int)
+    # Día de la semana en español
+    dias_es = {0: 'Lunes', 1: 'Martes', 2: 'Miércoles', 3: 'Jueves', 4: 'Viernes', 5: 'Sábado', 6: 'Domingo'}
+    data['dia_num'] = data['fecha'].dt.dayofweek
+    data['dia_nombre'] = data['dia_num'].map(dias_es)
+
+    # 2. FILTROS DE INTELIGENCIA
+    st.markdown("""
+    <div style="background-color:white; padding:15px; border-radius:10px; border:1px solid #E5E7EB; margin-bottom:20px;">
+        <h4 style="color:#374151; margin:0 0 10px 0; font-size:14px; font-weight:bold;">🔎 FILTROS DE TIEMPO</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        min_date = data['fecha'].min().date()
+        max_date = data['fecha'].max().date()
+        date_range = st.date_input("Rango de Fechas", [min_date, max_date])
+
+    # Filtrar datos según selección
+    if len(date_range) == 2:
+        mask = (data['fecha'].dt.date >= date_range[0]) & (data['fecha'].dt.date <= date_range[1])
+        data = data.loc[mask]
+
+    # 3. GRÁFICAS ESTRATÉGICAS (Oxford & Gold)
+    col_g1, col_g2 = st.columns(2, gap="medium")
+
+    with col_g1:
+        st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>🔥 LA HORA DEL DIABLO (Incidentes por Hora)</h5>", unsafe_allow_html=True)
+        # Gráfica de Barras: Hora del día
+        chart_hora = alt.Chart(data).mark_bar(color='#374151', cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+            x=alt.X('hora_clean:O', title='Hora del Día (24h)'),
+            y=alt.Y('count()', title='Cantidad de Focos'),
+            tooltip=['hora_clean', 'count()']
+        ).properties(height=220)
+        st.altair_chart(chart_hora, use_container_width=True)
+
+    with col_g2:
+        st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>📅 DÍAS DE ALTO RIESGO</h5>", unsafe_allow_html=True)
+        # Gráfica de Barras: Día de la semana (Ordenada)
+        chart_dia = alt.Chart(data).mark_bar(color='#FACC15').encode(
+            x=alt.X('dia_nombre:N', sort=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'], title='Día'),
+            y=alt.Y('count()', title='Incidentes'),
+            tooltip=['dia_nombre', 'count()']
+        ).properties(height=220)
+        st.altair_chart(chart_dia, use_container_width=True)
+
+    return data # Retornamos datos filtrados para el mapa 3D
+
 def render_3d_density_map(df):
     """Mapa Hexagonal 3D Táctico"""
     if df.empty:
-        st.warning("Sin datos para renderizar mapa 3D.")
+        st.info("Selecciona un rango de fechas con datos para ver el mapa 3D.")
         return
 
     st.markdown("""
-    <div style="background-color:#1F2937; padding:15px; border-radius:10px; border-left: 5px solid #FACC15; margin-bottom:20px;">
-        <h4 style="color:white; margin:0;">🔥 Mapa de Calor Volumétrico</h4>
-        <p style="color:#9CA3AF; font-size:12px; margin:0;">Visualización de densidad de incidentes acumulados.</p>
+    <div style="background-color:#1F2937; padding:15px; border-radius:10px; border-left: 5px solid #FACC15; margin-top:20px; margin-bottom:20px;">
+        <h4 style="color:white; margin:0; font-size:16px;">🗺️ Mapa Volumétrico de Calor</h4>
+        <p style="color:#9CA3AF; font-size:12px; margin:0;">Altura del hexágono = Cantidad de incendios históricos.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -33,44 +97,15 @@ def render_3d_density_map(df):
     view_state = pdk.ViewState(
         longitude=-106.4856,
         latitude=31.7389,
-        zoom=11,
-        pitch=50, # Inclinación 3D
+        zoom=10.5,
+        pitch=50,
     )
 
     r = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
-        tooltip={"text": "Densidad de Focos: {elevationValue}"},
+        tooltip={"text": "Densidad: {elevationValue} incidentes"},
         map_style="mapbox://styles/mapbox/dark-v10"
     )
     
     st.pydeck_chart(r)
-
-def render_tactical_charts(df):
-    """Genera gráficas de tendencias con estilo SAPRIA"""
-    if df.empty: return
-
-    # Preparar datos
-    df['fecha'] = pd.to_datetime(df['fecha'])
-    df['hora'] = pd.to_numeric(df['hora'], errors='coerce').fillna(0).astype(int)
-    df['mes'] = df['fecha'].dt.month_name()
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("<h5 style='color:#374151'>Incidencias por Hora del Día</h5>", unsafe_allow_html=True)
-        chart_hora = alt.Chart(df).mark_bar(color='#374151').encode(
-            x=alt.X('hora:O', title='Hora (0-24)'),
-            y=alt.Y('count()', title='Focos'),
-            tooltip=['hora', 'count()']
-        ).properties(height=250)
-        st.altair_chart(chart_hora, use_container_width=True)
-        
-    with col2:
-        st.markdown("<h5 style='color:#374151'>Severidad de Incidentes</h5>", unsafe_allow_html=True)
-        chart_sev = alt.Chart(df).mark_arc(innerRadius=50).encode(
-            theta=alt.Theta("count()"),
-            color=alt.Color("dano", scale=alt.Scale(scheme='goldorange'), title="Daño"),
-            tooltip=["dano", "count()"]
-        ).properties(height=250)
-        st.altair_chart(chart_sev, use_container_width=True)

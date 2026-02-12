@@ -21,8 +21,8 @@ try:
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
     from src.report_generator import generate_pdf_report
-    # IMPORTAMOS LA NUEVA FUNCIÓN DE GRÁFICAS
-    from src.analytics import render_3d_density_map, render_tactical_charts
+    # IMPORTAMOS EL NUEVO TABLERO TÁCTICO
+    from src.analytics import render_3d_density_map, render_tactical_dashboard
 except ImportError as e:
     st.error(f"Error de sistema: {e}")
     st.stop()
@@ -115,10 +115,16 @@ elif page == "Base":
 
 elif page == "Analitica":
     st.markdown("## Inteligencia Táctica (Analítica Avanzada)")
-    # MOSTRAR GRÁFICAS Y MAPA 3D
-    render_tactical_charts(df)
+    
+    # 1. RENDERIZAR TABLERO CON GRÁFICAS Y FILTROS
+    # Guardamos los datos filtrados que nos devuelve la función
+    df_filtrado = render_tactical_dashboard(df)
+    
     st.markdown("---")
-    render_3d_density_map(df)
+    
+    # 2. RENDERIZAR MAPA 3D USANDO LOS DATOS FILTRADOS
+    # Así el mapa reacciona al selector de fechas
+    render_3d_density_map(df_filtrado)
 
 st.markdown('</div>', unsafe_allow_html=True)
 render_footer()
