@@ -10,40 +10,15 @@ def render_left_alert_card(nasa_anomalies):
         html = f'<div style="background:white;padding:1rem;border-radius:0.75rem;border-left:4px solid #EF4444;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;"><h3 style="color:#EF4444;font-weight:700;font-size:0.875rem;margin:0;">ALERTA CRÍTICA</h3><span style="height:8px;width:8px;background:#EF4444;border-radius:50%;"></span></div><p style="color:#4B5563;font-size:0.75rem;margin:0;">NASA VIIRS detectó {nasa_anomalies} anomalías.</p></div>'
         st.markdown(html, unsafe_allow_html=True)
 
-# TARJETA CLIMA (¡AHORA CON VIENTO!)
+# TARJETA CLIMA TÁCTICO (CORREGIDA: HTML APLANADO)
 def render_factors_card(weather, fwi_cat):
     temp = weather['main']['temp'] if weather else "--"
-    wind = weather['wind']['speed'] * 3.6 if weather else 0 # m/s a km/h
+    wind = weather['wind']['speed'] * 3.6 if weather else 0
     wind_dir = weather['wind']['deg'] if weather else 0
-    
-    # Icono de dirección del viento rotado
     arrow_style = f"transform: rotate({wind_dir}deg); display:inline-block;"
     
-    html = f"""<div style="background:white;padding:1rem;border-radius:0.75rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);margin-bottom:1rem;">
-    <h2 style="color:#1F2937;font-size:0.75rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><span class="material-icons-outlined" style="font-size:16px;">analytics</span> CLIMA TÁCTICO</h2>
-    
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem;">
-        <div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;">
-            <span class="material-icons-outlined" style="color:#9CA3AF;">device_thermostat</span>
-            <div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">TEMP</span><span style="font-size:0.8rem;font-weight:800;color:#1F2937;">{temp}°C</span></div>
-        </div>
-        
-        <div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;border-left:2px solid #EF4444;">
-            <span class="material-icons-outlined" style="color:#EF4444;">local_fire_department</span>
-            <div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">FWI</span><span style="font-size:0.7rem;font-weight:800;color:#EF4444;">{fwi_cat}</span></div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;">
-            <span class="material-icons-outlined" style="color:#9CA3AF;">air</span>
-            <div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">VIENTO</span><span style="font-size:0.8rem;font-weight:800;color:#1F2937;">{wind:.1f} km/h</span></div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;">
-            <span class="material-icons-outlined" style="color:#FACC15; {arrow_style}">navigation</span>
-            <div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">DIRECCIÓN</span><span style="font-size:0.8rem;font-weight:800;color:#1F2937;">{wind_dir}°</span></div>
-        </div>
-    </div>
-    </div>"""
+    # HTML EN UNA SOLA LÍNEA PARA EVITAR QUE SE ROMPA
+    html = f'<div style="background:white;padding:1rem;border-radius:0.75rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);margin-bottom:1rem;"><h2 style="color:#1F2937;font-size:0.75rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><span class="material-icons-outlined" style="font-size:16px;">analytics</span> CLIMA TÁCTICO</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;"><div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;"><span class="material-icons-outlined" style="color:#9CA3AF;">device_thermostat</span><div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">TEMP</span><span style="font-size:0.8rem;font-weight:800;color:#1F2937;">{temp}°C</span></div></div><div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;border-left:2px solid #EF4444;"><span class="material-icons-outlined" style="color:#EF4444;">local_fire_department</span><div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">FWI</span><span style="font-size:0.7rem;font-weight:800;color:#EF4444;">{fwi_cat}</span></div></div><div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;"><span class="material-icons-outlined" style="color:#9CA3AF;">air</span><div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">VIENTO</span><span style="font-size:0.8rem;font-weight:800;color:#1F2937;">{wind:.1f} km/h</span></div></div><div style="display:flex;align-items:center;gap:0.5rem;background:#F9FAFB;padding:0.5rem;border-radius:0.5rem;"><span class="material-icons-outlined" style="color:#FACC15;{arrow_style}">navigation</span><div><span style="font-size:0.65rem;font-weight:700;display:block;color:#6B7280;">DIRECCIÓN</span><span style="font-size:0.8rem;font-weight:800;color:#1F2937;">{wind_dir}°</span></div></div></div></div>'
     st.markdown(html, unsafe_allow_html=True)
 
 # MÉTRICAS DERECHA
