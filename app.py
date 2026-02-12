@@ -7,6 +7,7 @@ import pandas as pd
 # 1. CONFIGURACIÓN
 st.set_page_config(page_title="SAPRIA-FO", page_icon="🛡️", layout="wide", initial_sidebar_state="collapsed")
 
+# 2. CARGAR CSS
 def local_css(file_name):
     try:
         with open(file_name, encoding='utf-8') as f:
@@ -14,9 +15,10 @@ def local_css(file_name):
     except: pass
 local_css("assets/style.css")
 
-# 2. CARGA DE MÓDULOS (Sin navbar.py)
+# 3. IMPORTACIONES
 try:
     from src.data_loader import load_historical_data, get_weather_data, get_real_infrastructure, get_nasa_firms_data
+    # ¡YA NO IMPORTAMOS NAVBAR.PY!
     from src.components import inject_tailwind, render_left_alert_card, render_factors_card, render_right_metrics, render_log_card, render_forecast_section, render_footer
     from src.fwi_calculator import calculate_fwi
     from src.ml_engine import get_risk_clusters
@@ -28,7 +30,7 @@ except ImportError as e:
 
 inject_tailwind()
 
-# 3. DATOS
+# 4. DATOS
 if 'sim_coords' not in st.session_state: st.session_state['sim_coords'] = None
 JUAREZ_LAT, JUAREZ_LON = 31.7389, -106.4856 
 @st.cache_data(ttl=600)
@@ -46,37 +48,42 @@ sim_hum = weather['main']['humidity'] if weather else 20
 fwi_val, fwi_cat, fwi_col = calculate_fwi(sim_temp, sim_hum, sim_wind)
 
 # ==============================================================================
-# 🛡️ BARRA SUPERIOR INTEGRADA (Oxford Gray y Dorado)
+# 🛡️ BARRA SUPERIOR (CONSTRUIDA AQUÍ MISMO PARA EVITAR ERRORES)
 # ==============================================================================
-# El CSS se encarga de pintar el fondo de este contenedor de Gris Oxford
+# Usamos un contenedor con clase custom para el fondo gris
 with st.container():
-    c_logo, c_menu, c_btn = st.columns([2, 5, 2], gap="medium")
+    # Inyectamos el fondo gris solo para este bloque
+    st.markdown('<div class="custom-header-bg" style="background-color:#374151; padding:15px; border-radius:0 0 15px 15px; margin-bottom:20px; border-bottom:3px solid #FACC15;">', unsafe_allow_html=True)
     
-    with c_logo:
-        # Logo HTML sin espacios para evitar errores
-        st.markdown('<div style="display:flex;align-items:center;gap:10px;"><span class="material-icons-outlined" style="color:#FACC15;font-size:36px;">shield</span><div style="line-height:1.1;"><h1 style="color:white;font-weight:900;font-size:22px;margin:0;font-family:sans-serif;">SAPRIA-FO</h1><p style="color:#D1D5DB;font-size:9px;font-weight:600;letter-spacing:1.5px;margin:0;">MONITOREO MUNICIPAL</p></div></div>', unsafe_allow_html=True)
+    col_logo, col_menu, col_btn = st.columns([2, 5, 2], gap="medium")
+    
+    with col_logo:
+        # LOGO HTML APLANADO
+        st.markdown('<div style="display:flex;align-items:center;gap:10px;"><span class="material-icons-outlined" style="color:#FACC15;font-size:32px;">shield</span><div style="line-height:1;"><h1 style="color:white;font-weight:900;font-size:20px;margin:0;font-family:sans-serif;">SAPRIA-FO</h1><p style="color:#D1D5DB;font-size:9px;font-weight:600;letter-spacing:1px;margin:0;">MONITOREO MUNICIPAL</p></div></div>', unsafe_allow_html=True)
         
-    with c_menu:
+    with col_menu:
         opciones = ["Dashboard Táctico", "Base Histórica", "Analítica 3D"]
         seleccion = st.radio("Nav", opciones, horizontal=True, label_visibility="collapsed")
         
-    with c_btn:
-        col_s, col_b = st.columns([1, 2])
-        with col_b:
+    with col_btn:
+        c_spacer, c_b = st.columns([1, 2])
+        with c_b:
             if st.button("📄 REPORTE PDF", use_container_width=True):
                  with st.spinner("Generando..."):
                     generate_pdf_report(weather, fwi_cat, len(df_nasa), epicentros_ia)
                     st.toast("Reporte Generado")
+    
+    st.markdown('</div>', unsafe_allow_html=True) # Cierra div fondo
 
-# Lógica de navegación
-if "Dashboard" in seleccion: page = "Dashboard"
-elif "Base" in seleccion: page = "Base"
+# Lógica
+page = "Dashboard"
+if "Base" in seleccion: page = "Base"
 elif "Analítica" in seleccion: page = "Analitica"
 
 # ==============================================================================
 # CONTENIDO
 # ==============================================================================
-st.markdown('<div class="container mx-auto px-4 mt-6">', unsafe_allow_html=True)
+st.markdown('<div class="container mx-auto px-4">', unsafe_allow_html=True)
 
 if page == "Dashboard":
     col_izq, col_mapa, col_der = st.columns([2.5, 6.5, 3], gap="medium")
@@ -94,7 +101,6 @@ if page == "Dashboard":
              for ep in epicentros_ia:
                 folium.Circle(location=[ep['lat'], ep['lon']], radius=1500, color="#EF4444", weight=1, fill=True, fill_opacity=0.1).add_to(m)
         st_folium(m, width="100%", height=500)
-        # Pronóstico restaurado
         render_forecast_section(sim_temp)
 
     with col_der:

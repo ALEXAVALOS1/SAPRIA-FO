@@ -1,38 +1,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
-/* Ocultar interfaz de Streamlit */
+/* Ocultar interfaz nativa de Streamlit */
 #MainMenu, header, footer, .stDeployButton { display: none !important; }
 section[data-testid="stSidebar"] { display: none !important; }
 
-/* Fondo y Fuente */
-.stApp { background-color: #F3F4F6 !important; font-family: 'Montserrat', sans-serif !important; }
-.block-container { max-width: 100% !important; padding-top: 2rem !important; padding-left: 2rem !important; padding-right: 2rem !important; }
+/* Fondo y Fuente Global */
+.stApp { 
+    background-color: #F3F4F6 !important; 
+    font-family: 'Montserrat', sans-serif !important; 
+}
+.block-container { 
+    max-width: 100% !important; 
+    padding-top: 2rem !important; 
+    padding-left: 2rem !important; 
+    padding-right: 2rem !important; 
+}
 
 /* --- BARRA SUPERIOR PERSONALIZADA --- */
-/* Esto pinta el fondo de la primera fila de columnas de color GRIS OXFORD */
-div[data-testid="stVerticalBlock"] > div:first-child {
+/* Solo afecta al contenedor específico de la barra */
+.custom-header {
     background-color: #374151; /* Gris Oxford */
-    border-radius: 0 0 15px 15px;
     padding: 1rem 2rem;
+    border-radius: 0 0 15px 15px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     border-bottom: 3px solid #FACC15; /* Línea Dorada */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /* MENÚ (Radio Buttons) */
 div[data-testid="stRadio"] > div[role="radiogroup"] {
     background: transparent !important;
-    display: flex; gap: 20px; justify-content: center;
+    display: flex; gap: 20px;
 }
 div[data-testid="stRadio"] label {
     color: #D1D5DB !important; /* Gris claro */
     font-weight: 600 !important; font-size: 14px !important;
     background: transparent !important; border: none !important;
-    transition: 0.3s;
 }
 div[data-testid="stRadio"] label:hover {
-    color: #FACC15 !important; /* Dorado al pasar mouse */
+    color: #FACC15 !important; 
 }
 div[data-testid="stRadio"] label[data-checked="true"] {
     color: #FACC15 !important; /* Dorado Activo */
@@ -48,9 +58,10 @@ div[data-testid="stButton"] button {
     border: none !important; font-weight: 800 !important;
     border-radius: 6px !important;
     text-transform: uppercase;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 div[data-testid="stButton"] button:hover {
     background-color: #FFFFFF !important;
     color: #FACC15 !important;
-    box-shadow: 0 0 10px #FACC15;
+    box-shadow: 0 0 15px #FACC15;
 }
