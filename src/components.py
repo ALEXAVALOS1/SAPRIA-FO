@@ -41,4 +41,4 @@ def render_forecast_section(base_temp):
     st.markdown(html, unsafe_allow_html=True)
 
 def render_footer():
-    st.markdown('<div style="text-align:center;padding:2rem;margin-top:2rem;color:#9CA3AF;font-size:0.75rem;">© 2026 SAPRIA-FO</div>', unsafe_allow_html=True)
+    st.markdown('<div style="text-align:center;padding:2rem;margin-top:2rem;color:#9CA3AF;font-size:0.75rem;">© 2026 URBIPREX</div>', unsafe_allow_html=True)

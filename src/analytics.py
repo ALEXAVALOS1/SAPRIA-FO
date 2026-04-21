@@ -5,30 +5,16 @@ import altair as alt
 
 def render_tactical_dashboard(df):
     """
-    Renderiza el tablero de inteligencia histórica con filtros y gráficas.
+    Renderiza el tablero de inteligencia histórica.
     """
     if df.empty:
-        st.warning("No hay datos históricos para analizar.")
+        st.warning("No hay datos históricos.")
         return df
 
-    # 1. COPIA SEGURA Y EXTRACCIÓN DE FECHAS
     data = df.copy()
     data['fecha'] = pd.to_datetime(data['fecha'])
 
-    # MESES
-    meses_es = {
-        1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril', 5: 'Mayo', 6: 'Junio',
-        7: 'Julio', 8: 'Agosto', 9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
-    }
-    data['mes_num'] = data['fecha'].dt.month
-    data['mes_nombre'] = data['mes_num'].map(meses_es)
-
-    # DÍAS
-    dias_es = {0: 'Lunes', 1: 'Martes', 2: 'Miércoles', 3: 'Jueves', 4: 'Viernes', 5: 'Sábado', 6: 'Domingo'}
-    data['dia_num'] = data['fecha'].dt.dayofweek
-    data['dia_nombre'] = data['dia_num'].map(dias_es)
-
-    # 2. FILTROS
+    # Filtros de fecha estándar...
     st.markdown("""
     <div style="background-color:white; padding:15px; border-radius:10px; border:1px solid #E5E7EB; margin-bottom:20px;">
         <h4 style="color:#374151; margin:0 0 10px 0; font-size:14px; font-weight:bold;">🔎 FILTROS DE TIEMPO</h4>
@@ -45,70 +31,94 @@ def render_tactical_dashboard(df):
         mask = (data['fecha'].dt.date >= date_range[0]) & (data['fecha'].dt.date <= date_range[1])
         data = data.loc[mask]
 
-    # 3. GRÁFICAS ESTRATÉGICAS
-    col_g1, col_g2 = st.columns(2, gap="medium")
-
-    with col_g1:
-        st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>📅 TENDENCIA MENSUAL (Temporada de Riesgo)</h5>", unsafe_allow_html=True)
-        chart_mes = alt.Chart(data).mark_bar(color='#374151', cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
-            x=alt.X('mes_nombre:N', sort=list(meses_es.values()), title='Mes'),
-            y=alt.Y('count()', title='Incidentes'),
-            tooltip=['mes_nombre', 'count()']
-        ).properties(height=220)
-        st.altair_chart(chart_mes, use_container_width=True)
-
-    with col_g2:
-        st.markdown("<h5 style='color:#374151; font-size:12px; font-weight:bold; text-align:center'>📆 DÍAS DE ALTO RIESGO</h5>", unsafe_allow_html=True)
-        chart_dia = alt.Chart(data).mark_bar(color='#FACC15').encode(
-            x=alt.X('dia_nombre:N', sort=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'], title='Día'),
-            y=alt.Y('count()', title='Incidentes'),
-            tooltip=['dia_nombre', 'count()']
-        ).properties(height=220)
-        st.altair_chart(chart_dia, use_container_width=True)
-
     return data
 
 def render_3d_density_map(df):
     if df.empty:
-        st.info("Sin datos para mostrar en el mapa 3D.")
+        st.info("Sin datos para el mapa.")
         return
 
     st.markdown("""
     <div style="background-color:#1F2937; padding:15px; border-radius:10px; border-left: 5px solid #FACC15; margin-top:20px; margin-bottom:20px;">
-        <h4 style="color:white; margin:0; font-size:16px;">🗺️ Mapa Táctico de Densidad</h4>
-        <p style="color:#9CA3AF; font-size:12px; margin:0;">Zonas calientes basadas en el historial filtrado.</p>
+        <h4 style="color:white; margin:0; font-size:16px;">🗺️ Mapa Híbrido: Puntos Exactos + Densidad</h4>
+        <p style="color:#9CA3AF; font-size:12px; margin:0;">Los puntos muestran ubicación exacta. Los hexágonos muestran zonas de calor.</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # CAPA HEXAGONAL CALIBRADA
-    layer = pdk.Layer(
+    # 1. AUTOCENTRADO INTELIGENTE
+    # Calculamos el centro promedio de los puntos visibles para que "salgan todos"
+    mid_lat = df['lat'].mean()
+    mid_lon = df['lon'].mean()
+
+    # 2. DEFINIR COLORES SEMÁFORO (Rojo, Amarillo, Verde)
+    # Si tienes columna 'dano', la usamos. Si no, todo rojo por defecto.
+    def get_color(dano):
+        if isinstance(dano, str):
+            if 'Total' in dano or 'Alto' in dano: return [255, 0, 0, 200]   # Rojo
+            if 'Medio' in dano: return [255, 255, 0, 200] # Amarillo
+        return [0, 255, 0, 200] # Verde (Bajo/Parcial)
+
+    # Asignamos color a cada fila
+    df['color'] = df['dano'].apply(get_color)
+
+    # --- CAPA 1: PUNTOS EXACTOS (SCATTERPLOT) ---
+    # Esto soluciona que "no salgan todos". Aquí ves cada punto individual.
+    layer_puntos = pdk.Layer(
+        "ScatterplotLayer",
+        df,
+        get_position=["lon", "lat"],
+        get_color="color",
+        get_radius=80,          # Tamaño del punto
+        pickable=True,          # Para que salga el tooltip
+        opacity=0.9,
+        stroked=True,
+        filled=True,
+        radius_min_pixels=3,
+        radius_max_pixels=10,
+    )
+
+    # --- CAPA 2: HEXÁGONOS (MODIFICADA: ANCHA Y BAJA) ---
+    layer_hex = pdk.Layer(
         "HexagonLayer",
         df,
         get_position=["lon", "lat"],
         auto_highlight=True,
-        # 1. BAJAMOS LA ESCALA DE ALTURA (Antes 30 -> Ahora 10)
-        elevation_scale=10,
-        pickable=True,
-        # 2. ACOTAMOS EL RANGO PARA QUE LOS PEQUEÑOS NO DESAPAREZCAN
-        elevation_range=[0, 1000], 
+        elevation_scale=5,      # <--- MÁS BAJAS (Antes 30)
+        pickable=False,         # Dejamos el click para los puntos, no los hexágonos
+        elevation_range=[0, 500],
         extruded=True,
         coverage=1,
-        radius=30, 
-        # Color: Gradiente de Rojo a Amarillo (Más visible)
-        get_fill_color="[255, (1 - elevationValue / 200) * 255, 0, 200]",
+        radius=150,             # <--- MÁS ANCHAS (Antes 30)
+        opacity=0.3,            # <--- TRANSPARENTE para ver los puntos abajo
+        # Gradiente Semáforo para la densidad
+        color_range=[
+            [0, 255, 0, 150],   # Verde
+            [255, 255, 0, 150], # Amarillo
+            [255, 0, 0, 150]    # Rojo
+        ],
     )
 
     view_state = pdk.ViewState(
-        longitude=-106.4856,
-        latitude=31.7389,
+        longitude=mid_lon,      # Centrado automático
+        latitude=mid_lat,
         zoom=11,
-        pitch=50, # Un poco más de inclinación para ver volumen
+        pitch=30,               # Menos inclinación para ver mejor los puntos
     )
 
+    # Tooltip mejorado con Coordenadas
+    tooltip = {
+        "html": "<b>Incidente Detectado</b><br/>"
+                "📍 Lat: {lat}<br/>"
+                "📍 Lon: {lon}<br/>"
+                "💥 Daño: {dano}<br/>"
+                "📅 Fecha: {fecha}",
+        "style": {"backgroundColor": "#1F2937", "color": "white", "fontSize": "12px"}
+    }
+
     r = pdk.Deck(
-        layers=[layer],
+        layers=[layer_hex, layer_puntos], # Dibujamos puntos encima o hexágonos encima según orden
         initial_view_state=view_state,
-        tooltip={"text": "Densidad: {elevationValue} incidentes"},
+        tooltip=tooltip,
         map_style=pdk.map_styles.CARTO_DARK
     )
     

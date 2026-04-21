@@ -1,0 +1,44 @@
+{
+    "pob_total_riesgo": 45600,
+    "escenario_inaccion": {
+        "proyectados": 8.5,
+        "historicos": 1240
+    },
+    "sectores": [
+        {
+            "nombre": "Anapra",
+            "pob": 14244,
+            "rezago": "38.5%",
+            "inc": 45
+        },
+        {
+            "nombre": "Riberas del Bravo",
+            "pob": 30000,
+            "rezago": "35.2%",
+            "inc": 112
+        },
+        {
+            "nombre": "Felipe Ángeles",
+            "pob": 13200,
+            "rezago": "28.1%",
+            "inc": 38
+        }
+    ],
+    "factores": [
+        {
+            "name": "Historial Geoespacial",
+            "value": 45,
+            "color": "#FACC15"
+        },
+        {
+            "name": "Rezago Social (INEGI)",
+            "value": 30,
+            "color": "#64748b"
+        },
+        {
+            "name": "Vientos de Juárez",
+            "value": 25,
+            "color": "#ef4444"
+        }
+    ]
+}

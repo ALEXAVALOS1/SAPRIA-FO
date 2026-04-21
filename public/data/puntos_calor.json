@@ -1,0 +1,23 @@
+[
+    {
+        "zona": "Riberas del Bravo (Etapa 8)",
+        "lat": 31.658,
+        "lon": -106.3,
+        "intensidad": 345.2,
+        "status": "CRÍTICO"
+    },
+    {
+        "zona": "Anapra",
+        "lat": 31.745,
+        "lon": -106.55,
+        "intensidad": 310.5,
+        "status": "CONTROLADO"
+    },
+    {
+        "zona": "Lomas de Poleo",
+        "lat": 31.76,
+        "lon": -106.57,
+        "intensidad": 322.8,
+        "status": "EN VERIFICACIÓN"
+    }
+]

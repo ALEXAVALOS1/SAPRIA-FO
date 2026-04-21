@@ -5,7 +5,7 @@ from folium.plugins import HeatMap
 import pandas as pd
 
 # 1. CONFIGURACIÓN
-st.set_page_config(page_title="SAPRIA-FO", page_icon="🛡️", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="URBIPREX", page_icon="🛡️", layout="wide", initial_sidebar_state="collapsed")
 
 def local_css(file_name):
     try:
@@ -56,7 +56,7 @@ with st.container():
     col_logo, col_menu, col_btn = st.columns([2, 5, 2], gap="medium")
     
     with col_logo:
-        st.markdown('<div style="display:flex;align-items:center;gap:10px;"><span class="material-icons-outlined" style="color:#FACC15;font-size:32px;">shield</span><div style="line-height:1.1;"><h1 style="color:white;font-weight:900;font-size:20px;margin:0;font-family:sans-serif;">SAPRIA-FO</h1><p style="color:#D1D5DB;font-size:9px;font-weight:600;letter-spacing:1px;margin:0;">MONITOREO MUNICIPAL</p></div></div>', unsafe_allow_html=True)
+        st.markdown('<div style="display:flex;align-items:center;gap:10px;"><span class="material-icons-outlined" style="color:#FACC15;font-size:32px;">shield</span><div style="line-height:1.1;"><h1 style="color:white;font-weight:900;font-size:20px;margin:0;font-family:sans-serif;">URBIPREX</h1><p style="color:#D1D5DB;font-size:9px;font-weight:600;letter-spacing:1px;margin:0;">MONITOREO MUNICIPAL</p></div></div>', unsafe_allow_html=True)
         
     with col_menu:
         opciones = ["Dashboard Táctico", "Base Histórica", "Analítica Avanzada"]
@@ -71,7 +71,7 @@ with st.container():
             st.download_button(
                 label="⬇️ DESCARGAR PDF",
                 data=pdf_data,
-                file_name="Reporte_SAPRIA.pdf",
+                file_name="Reporte_URBIPREX.pdf",
                 mime="application/pdf",
                 use_container_width=True
             )

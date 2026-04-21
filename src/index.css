@@ -1,0 +1,33 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+
+:root {
+  --navy: #0f172a;
+  --URBIPREX-red: #ff3b3b;
+}
+
+body {
+  @apply bg-[#f1f5f9] font-sans text-slate-900 overflow-hidden;
+}
+
+@layer components {
+  .card-white {
+    @apply bg-white rounded-[2.8rem] shadow-sm border border-slate-100 p-8;
+  }
+}
+
+/* Leaflet Popup Styling */
+.leaflet-popup-content-wrapper {
+  @apply rounded-[1.5rem] shadow-2xl p-0 overflow-hidden !important;
+}
+.leaflet-popup-content { @apply m-0 !important; }
+
+/* Limpiar estilos feos por defecto de Leaflet */
+.leaflet-tooltip.custom-leaflet-tooltip {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.leaflet-tooltip-top.custom-leaflet-tooltip::before {
+  border-top-color: #0b1c14 !important;
+}

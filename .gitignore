@@ -1,11 +1,22 @@
-# Archivos de sistema y entorno virtual
+# Dependencias de React y Node
+node_modules/
+dist/
+build/
+
+# Archivos de sistema y entorno virtual de Python
 venv/
+env/
 __pycache__/
 *.pyc
 
 # Archivos con claves secretas (¡CRÍTICO!)
 .streamlit/secrets.toml
 src/keys.py
+.env
 
-# Archivos de datos (Opcional: Si quieres subir el CSV déjalo, si son datos privados, agrégalo aquí)
+# Archivos de datos (Opcional)
 # incendios.csv
+
+# Archivos basura del sistema operativo
+.DS_Store
+Thumbs.db

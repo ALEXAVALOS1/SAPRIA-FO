@@ -1,38 +1,51 @@
-# SAPRIA-FO: Sistema de Análisis Predictivo de Riesgos de Incendios Urbanos 🔥
+# URBIPREX: Sistema de Análisis Predictivo de Riesgos de Incendios Urbanos 🔥
 
 ![Status](https://img.shields.io/badge/Status-Activo-success)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
+![React](https://img.shields.io/badge/Frontend-React-61DAFB?logo=react&logoColor=black)
+![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**Sistema Municipal de Alertamiento Temprano para Ciudad Juárez.**
-Este proyecto utiliza Inteligencia Artificial y datos de fuentes abiertas para identificar zonas de alto riesgo de incendio, optimizando la respuesta de Protección Civil.
+**Sistema Municipal de Alertamiento Temprano para Ciudad Juárez.** Este proyecto utiliza Inteligencia Artificial, Big Data geoespacial y cruce masivo de bases de datos gubernamentales (INEGI) para identificar zonas de alto riesgo de incendio, optimizando la respuesta operativa y táctica de Protección Civil.
+
+<div align="center">
+  <img src="public/URBIPREX - LOGO GITHUB.PNG" alt="URBIPREX LOGO" width="400"/>
+</div>
 
 ---
 
 ## 🎯 Objetivo
-Desarrollar un modelo predictivo que genere mapas de calor de riesgo por manzana, utilizando datos históricos y variables climáticas en tiempo real para apoyar la toma de decisiones preventivas.
+Desarrollar un modelo predictivo de grado institucional que genere mapas de riesgo manzana por manzana. El sistema evalúa infraestructura real, demografía, y variables climáticas dinámicas para predecir vulnerabilidades (como hacinamiento o densidad industrial) y apoyar la toma de decisiones preventivas.
 
 ## 🚀 Funcionalidades Principales
-* **📡 Monitoreo en Vivo:** Visualización geoespacial de incidentes históricos con mapas de calor (Heatmaps) nítidos y clusters interactivos.
-* **🤖 Predicción IA:** Modelo **Random Forest** entrenado para predecir la probabilidad de incendios basándose en patrones espaciales y temporales.
-* **🌤️ Clima en Tiempo Real:** Conexión vía API a OpenWeatherMap para monitorear condiciones detonantes (temperatura, viento, humedad).
-* **📊 Dashboard Estadístico:** Métricas clave sobre las colonias con mayor incidencia y causas frecuentes.
+* **📡 Centro de Mando Táctico:** Interfaz frontend de baja latencia construida en React que permite a los operadores visualizar el riesgo de la ciudad mediante polígonos interactivos.
+* **🤖 Cerebro Predictivo V4 (IA):** Modelo **Random Forest** entrenado con 7 variables críticas simultáneas: Distancia a bomberos, población, densidad vial, temperatura, viento, uso de suelo y riesgo eléctrico.
+* **🗺️ Pipeline ETL Geoespacial:** Motor de extracción en Python que procesa e intersecta espacialmente decenas de miles de registros oficiales del Directorio Estadístico Nacional de Unidades Económicas (DENUE) y el Censo Poblacional (ITER).
+* **🌤️ Simulador de Escenarios Estrés:** Módulo que permite inyectar condiciones climáticas extremas simuladas para prever el comportamiento del riesgo bajo presión térmica o ráfagas de viento.
 
 ## 🛠️ Stack Tecnológico
-* **Lenguaje:** Python 3.9+
-* **Frontend/Dashboard:** Streamlit
-* **Mapas:** Folium & Leaflet (CartoDB Dark Matter / Esri Satellite)
-* **Ciencia de Datos:** Pandas, NumPy, Scikit-learn
-* **APIs:** OpenWeatherMap, NASA FIRMS
+* **Frontend / UI:** React, TypeScript, Tailwind CSS
+* **Backend / API:** FastAPI, Uvicorn, Python
+* **Ingeniería de Datos (ETL):** GeoPandas, Pandas, Shapely
+* **Machine Learning:** Scikit-learn, Joblib
+* **Fuentes de Verdad (Datos):** INEGI (DENUE 2024, Censo ITER 2020), OpenWeatherMap
 
 ## 📂 Estructura del Proyecto
 ```text
-SAPRIA-FO/
-├── src/
-│   ├── data_loader.py    # Gestión de datos y conexión a APIs
-│   ├── ai_model.py       # Lógica del modelo Random Forest
-│   └── keys.py           # Credenciales (No incluido en repo por seguridad)
-├── assets/               # Estilos CSS y recursos gráficos
-├── app.py                # Punto de entrada de la aplicación
-├── incendios.csv         # Dataset histórico (Anonimizado)
-└── requirements.txt      # Dependencias
+URBIPREX/
+├── backend/
+│   ├── main.py                 # API de FastAPI (Puente de predicción)
+│   ├── etl_geoespacial.py      # Motor ETL de cruce espacial (INEGI)
+│   ├── train_model.py          # Script de entrenamiento IA (Random Forest)
+│   └── modelo_urbiprex.pkl     # Cerebro V4 (Modelo exportado)
+├── public/ 
+│   ├── data/
+│   │   └── manzanas_datos_produccion.json # Archivo Maestro GeoJSON
+│   └── URBIPREX - LOGO GITHUB.PNG
+├── src/ 
+│   ├── components/
+│   │   ├── MapView.tsx         # Renderizado del mapa táctico
+│   │   ├── RightPanel.tsx      # Panel de telemetría y semáforos de riesgo
+│   │   └── WeatherSimulator.tsx# Control de estrés climático
+│   └── App.tsx                 # Ensamblaje del Centro de Mando
+└── conjunto_de_datos/          # Archivos crudos del gobierno (CSV/SHP)
